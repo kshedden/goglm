@@ -1,31 +1,63 @@
 package goglm
 
-type Variance struct {
-	Var   vecFunc
-	Deriv vecFunc
+import (
+	"fmt"
+	"strings"
+)
+
+// NewVariance returns a new variance function object corresponding to
+// the given name.  Supported names are binomial, const, cubed, ident,
+// and, squared.
+func NewVariance(name string) *Variance {
+
+	name = strings.ToLower(name)
+	switch name {
+
+	case "binomial":
+		return &binomVariance
+	case "ident":
+		return &identVariance
+	case "const":
+		return &constVariance
+	case "squared":
+		return &squaredVariance
+	case "cubed":
+		return &cubedVariance
+	default:
+		msg := fmt.Sprintf("Unknown variance function: %s\n", name)
+		panic(msg)
+	}
+
+	return nil
 }
 
-var BinomVar = Variance{
+// Variance represents a GLM variance function.
+type Variance struct {
+	Var   VecFunc
+	Deriv VecFunc
+}
+
+var binomVariance = Variance{
 	Var:   binomVar,
 	Deriv: binomVarDeriv,
 }
 
-var IdentVar = Variance{
+var identVariance = Variance{
 	Var:   identVar,
 	Deriv: identVarDeriv,
 }
 
-var ConstVar = Variance{
+var constVariance = Variance{
 	Var:   constVar,
 	Deriv: constVarDeriv,
 }
 
-var SquaredVar = Variance{
+var squaredVariance = Variance{
 	Var:   squaredVar,
 	Deriv: squaredVarDeriv,
 }
 
-var CubedVar = Variance{
+var cubedVariance = Variance{
 	Var:   cubedVar,
 	Deriv: cubedVarDeriv,
 }
@@ -82,7 +114,11 @@ func cubedVarDeriv(mn []float64, v []float64) {
 	}
 }
 
-func GenNegBinomialVariance(alpha float64) Variance {
+// NewNegBinomialVariance returns a variance function for the negative
+// binomial family, using the given parameter alpha to determine the
+// mean/variance relationship.  The variance for mean m is m +
+// alpha*m^2.
+func NewNegBinomialVariance(alpha float64) *Variance {
 
 	vaf := func(mn []float64, v []float64) {
 		for i, m := range mn {
@@ -96,7 +132,7 @@ func GenNegBinomialVariance(alpha float64) Variance {
 		}
 	}
 
-	return Variance{
+	return &Variance{
 		Var:   vaf,
 		Deriv: vad,
 	}

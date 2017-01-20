@@ -6,17 +6,33 @@ import (
 	"strings"
 )
 
-type v3Func func([]float64, []float64, []float64, float64) float64
+type Vec3Func func([]float64, []float64, []float64, float64) float64
 
+// Family represents a generalized linear model family.
 type Family struct {
-	Name       string
-	LogLike    v3Func
-	Deviance   v3Func
-	validLinks []Link
-	link       Link // Used only for negative binomial
-	Aux        interface{}
+
+	// The name of the family
+	Name string
+
+	// The log-likelihood function for the family
+	LogLike Vec3Func
+
+	// The deviance function for the family
+	Deviance Vec3Func
+
+	// The names of valid links for this family
+	validLinks []string
+
+	// The link in use by the family, only specified for negative binomial
+	link *Link
+
+	// Additional family-specific information
+	Aux interface{}
 }
 
+// NewFamily returns a family object corresponding to the given name.
+// Supported names are binomial, gamma, gaussian, invgaussian,
+// poisson, quasipoisson.
 func NewFamily(name string) *Family {
 
 	name = strings.ToLower(name)
@@ -46,7 +62,7 @@ var poisson = Family{
 	Name:       "Poisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []Link{LogLink, IdLink},
+	validLinks: []string{"log", "id"},
 }
 
 // QuasiPoisson is the same as Poisson, except that the scale parameter is estimated.
@@ -54,41 +70,43 @@ var quasiPoisson = Family{
 	Name:       "QuasiPoisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []Link{LogLink, IdLink},
+	validLinks: []string{"log", "id"},
 }
 
 var binomial = Family{
 	Name:       "Binomial",
 	LogLike:    binomialLogLike,
 	Deviance:   binomialDeviance,
-	validLinks: []Link{LogitLink, LogLink, IdLink},
+	validLinks: []string{"logit", "log", "id"},
 }
 
 var gaussian = Family{
 	Name:       "Gaussian",
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
-	validLinks: []Link{LogLink, IdLink, RecipLink},
+	validLinks: []string{"log", "id", "recip"},
 }
 
 var gamma = Family{
 	Name:       "Gamma",
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
-	validLinks: []Link{LogLink, IdLink, RecipLink},
+	validLinks: []string{"log", "id", "recip"},
 }
 
 var invGaussian = Family{
 	Name:       "InvGaussian",
 	LogLike:    invGaussLogLike,
 	Deviance:   invGaussianDeviance,
-	validLinks: []Link{RecipSquaredLink, RecipLink, LogLink, IdLink},
+	validLinks: []string{"recipsquared", "recip", "log", "id"},
 }
 
-func (fam *Family) IsValidLink(link Link) bool {
+// IsValidLink returns true or false based on whether the link is
+// valid for the family.
+func (fam *Family) IsValidLink(link *Link) bool {
 
 	for _, q := range fam.validLinks {
-		if link.name == q.name {
+		if strings.ToLower(link.Name) == q {
 			return true
 		}
 	}
@@ -265,7 +283,9 @@ func gaussianDeviance(y, mn, wgt []float64, scale float64) float64 {
 	return dev
 }
 
-func NewNegBinomialFamily(alpha float64, link Link) *Family {
+// NewNegBinomialFamily returns a new family object for the negative
+// binomial family, using the given link function.
+func NewNegBinomialFamily(alpha float64, link *Link) *Family {
 
 	loglike := func(y, mn, wt []float64, scale float64) float64 {
 
@@ -274,7 +294,7 @@ func NewNegBinomialFamily(alpha float64, link Link) *Family {
 		var lp []float64
 
 		lp = resize(lp, len(y))
-		link.link(mn, lp)
+		link.Link(mn, lp)
 		c3, _ := math.Lgamma(1 / alpha)
 
 		for i := 0; i < len(y); i++ {
@@ -304,7 +324,7 @@ func NewNegBinomialFamily(alpha float64, link Link) *Family {
 		var lp []float64
 
 		lp = resize(lp, len(y))
-		link.link(mn, lp)
+		link.Link(mn, lp)
 
 		for i := 0; i < len(y); i++ {
 			if wt != nil {
@@ -330,7 +350,7 @@ func NewNegBinomialFamily(alpha float64, link Link) *Family {
 		LogLike:    loglike,
 		Deviance:   deviance,
 		Aux:        NegBinomAux{Alpha: alpha},
-		validLinks: []Link{LogLink, IdLink},
+		validLinks: []string{"log", "id"},
 		link:       link,
 	}
 }

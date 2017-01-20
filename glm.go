@@ -13,8 +13,8 @@ type GLM struct {
 	statmodel.IndRegModel
 
 	Fam  *Family
-	Link Link
-	Var  Variance
+	Link *Link
+	Var  *Variance
 
 	FitMethod FitMethodType
 	Start     []float64
@@ -48,29 +48,29 @@ func (rslt *GLMResults) Scale() float64 {
 // use the SetLink method.
 func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 
-	var link Link
-	var vaf Variance
+	var link *Link
+	var vaf *Variance
 
 	fname := strings.ToLower(fam.Name)
 	switch fname {
 	case "binomial":
-		link = LogitLink
-		vaf = BinomVar
+		link = NewLink("logit")
+		vaf = NewVariance("binomial")
 	case "poisson":
-		link = LogLink
-		vaf = IdentVar
+		link = NewLink("log")
+		vaf = NewVariance("ident")
 	case "quasipoisson":
-		link = LogLink
-		vaf = IdentVar
+		link = NewLink("log")
+		vaf = NewVariance("ident")
 	case "gaussian":
-		link = IdLink
-		vaf = ConstVar
+		link = NewLink("ident")
+		vaf = NewVariance("const")
 	case "gamma":
-		link = RecipLink
-		vaf = SquaredVar
+		link = NewLink("recip")
+		vaf = NewVariance("squared")
 	case "invgaussian":
-		link = RecipSquaredLink
-		vaf = CubedVar
+		link = NewLink("recipsquared")
+		vaf = NewVariance("cubed")
 	case "negbinomial":
 		alpha := fam.Aux.(NegBinomAux).Alpha
 		return NewNegBinomialGLM(alpha, data)
@@ -93,15 +93,19 @@ type NegBinomAux struct {
 	Alpha float64
 }
 
+// NewNegBinomialGLM creates a GLM object with a negative binomial
+// family type, using the given parameter alpha to determine the
+// mean/variance relationship.  The variance corresponding to mean m
+// is m + alpha*m^2.
 func NewNegBinomialGLM(alpha float64, data statmodel.DataProvider) *GLM {
 
-	fam := NewNegBinomialFamily(alpha, LogLink)
-	vaf := GenNegBinomialVariance(alpha)
+	fam := NewNegBinomialFamily(alpha, NewLink("log"))
+	vaf := NewNegBinomialVariance(alpha)
 
 	return &GLM{
 		IndRegModel: statmodel.IndRegModel{Data: data},
 		Fam:         fam,
-		Link:        LogLink,
+		Link:        NewLink("log"),
 		Var:         vaf,
 		FitMethod:   IRLSFit,
 		Aux:         NegBinomAux{Alpha: alpha},
@@ -112,7 +116,7 @@ func NewNegBinomialGLM(alpha float64, data statmodel.DataProvider) *GLM {
 // links for the GLM family).  It is also usually possible to set the
 // Link field directly, but don't do this with the negative binomial
 // family.
-func (glm *GLM) SetLink(link Link) {
+func (glm *GLM) SetLink(link *Link) {
 
 	if !glm.Fam.IsValidLink(link) {
 		panic("Invalid link")
@@ -121,7 +125,7 @@ func (glm *GLM) SetLink(link Link) {
 	if strings.ToLower(glm.Fam.Name) == "negbinomial" {
 		// Need to reset the family when the link changes
 		alpha := glm.Aux.(NegBinomAux).Alpha
-		fam := NewNegBinomialFamily(alpha, LogLink)
+		fam := NewNegBinomialFamily(alpha, NewLink("log"))
 		glm.Fam = fam
 	}
 	glm.Link = link
@@ -158,7 +162,7 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 		}
 
 		// Update the log likelihood value
-		glm.Link.invLink(linpred, mn)
+		glm.Link.InvLink(linpred, mn)
 		loglike += glm.Fam.LogLike(yda, mn, wgts, scale)
 	}
 
@@ -207,8 +211,8 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 			}
 		}
 
-		glm.Link.invLink(linpred, mn)
-		glm.Link.deriv(mn, deriv)
+		glm.Link.InvLink(linpred, mn)
+		glm.Link.Deriv(mn, deriv)
 		glm.Var.Var(mn, va)
 
 		scoreFactor(yda, mn, deriv, va, fac)
@@ -269,9 +273,9 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 		}
 
 		// The mean response
-		glm.Link.invLink(linpred, mn)
+		glm.Link.InvLink(linpred, mn)
 
-		glm.Link.deriv(mn, lderiv)
+		glm.Link.Deriv(mn, lderiv)
 		glm.Var.Var(mn, va)
 
 		// Factor for the expected Hessian
@@ -283,7 +287,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 		if ht == statmodel.ObsHess {
 			vad = resize(vad, n)
 			lderiv2 = resize(lderiv2, n)
-			glm.Link.deriv2(mn, lderiv2)
+			glm.Link.Deriv2(mn, lderiv2)
 			glm.Var.Deriv(mn, vad)
 			scoreFactor(yda, mn, lderiv, va, sfac)
 
@@ -386,7 +390,7 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 		}
 
 		// The mean response and variance
-		glm.Link.invLink(linpred, mn)
+		glm.Link.InvLink(linpred, mn)
 		glm.Var.Var(mn, va)
 
 		for i, y := range yda {

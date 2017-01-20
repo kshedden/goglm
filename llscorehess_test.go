@@ -8,7 +8,7 @@ import (
 
 type ptlsh struct {
 	family  *Family
-	link    Link
+	link    *Link
 	data    statmodel.DataProvider
 	params  []float64
 	ll      float64
@@ -47,7 +47,7 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("binomial"),
-		link:   LogLink,
+		link:   NewLink("log"),
 		data:   data2(true),
 		params: []float64{-0.7, 0.1, 0},
 		ll:     -14.070884019230451,
@@ -108,7 +108,7 @@ var pq = []ptlsh{
 			-112.07064966, 625.27145184, -640.63104102},
 	},
 	{
-		family: NewNegBinomialFamily(1.5, LogLink),
+		family: NewNegBinomialFamily(1.5, NewLink("log")),
 		data:   data4(true),
 		params: []float64{1, 0, -1},
 		ll:     -77.310157634140779,
@@ -127,7 +127,7 @@ func TestLLScoreHess(t *testing.T) {
 	for _, ps := range pq {
 		glm := NewGLM(ps.family, ps.data)
 
-		if ps.link.name != "" {
+		if ps.link != nil {
 			glm.SetLink(ps.link)
 		}
 

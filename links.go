@@ -1,73 +1,102 @@
 package goglm
 
-import "math"
+import (
+	"fmt"
+	"math"
+	"strings"
+)
 
-type vecFunc func([]float64, []float64)
+type VecFunc func([]float64, []float64)
 
 type Link struct {
-	name string
+	Name string
 
 	// Link calculates the link function value (usually mapping
 	// the mean to the linear predictor).
-	link vecFunc
+	Link VecFunc
 
 	// InvLink calculates the inverse value of the link function
 	// (usually mapping the linear preditor to the mean).
-	invLink vecFunc
+	InvLink VecFunc
 
 	// Deriv calculates the derivative of the link function.
-	deriv vecFunc
+	Deriv VecFunc
 
 	// Deriv2 calculates the second derivative of the link function.
-	deriv2 vecFunc
+	Deriv2 VecFunc
 }
 
-var LogLink = Link{
-	name:    "Log",
-	link:    logFunc,
-	invLink: expFunc,
-	deriv:   logDerivFunc,
-	deriv2:  logDeriv2Func,
+func NewLink(name string) *Link {
+
+	name = strings.ToLower(name)
+
+	switch name {
+	case "log":
+		return &logLink
+	case "ident":
+		return &idLink
+	case "cloglog":
+		return &cLogLogLink
+	case "logit":
+		return &logitLink
+	case "recip":
+		return &recipLink
+	case "recipsquared":
+		return &recipSquaredLink
+	default:
+		msg := fmt.Sprintf("Link name unknown: %s\n", name)
+		panic(msg)
+	}
+
+	return nil
 }
 
-var IdLink = Link{
-	name:    "Identity",
-	link:    idFunc,
-	invLink: idFunc,
-	deriv:   idDerivFunc,
-	deriv2:  idDeriv2Func,
+var logLink = Link{
+	Name:    "Log",
+	Link:    logFunc,
+	InvLink: expFunc,
+	Deriv:   logDerivFunc,
+	Deriv2:  logDeriv2Func,
 }
 
-var CLogLogLink = Link{
-	name:    "CLogLog",
-	link:    cloglogFunc,
-	invLink: cloglogInvFunc,
-	deriv:   cloglogDerivFunc,
-	deriv2:  cloglogDeriv2Func,
+var idLink = Link{
+	Name:    "Identity",
+	Link:    idFunc,
+	InvLink: idFunc,
+	Deriv:   idDerivFunc,
+	Deriv2:  idDeriv2Func,
 }
 
-var LogitLink = Link{
-	name:    "Logit",
-	link:    logitFunc,
-	invLink: expitFunc,
-	deriv:   logitDerivFunc,
-	deriv2:  logitDeriv2Func,
+var cLogLogLink = Link{
+	Name:    "CLogLog",
+	Link:    cloglogFunc,
+	InvLink: cloglogInvFunc,
+	Deriv:   cloglogDerivFunc,
+	Deriv2:  cloglogDeriv2Func,
 }
 
-var RecipLink = Link{
-	name:    "Reciprocal",
-	link:    genPowFunc(-1, 1),
-	invLink: genPowFunc(-1, 1),
-	deriv:   genPowFunc(-2, -1),
-	deriv2:  genPowFunc(-3, 2),
+var logitLink = Link{
+	Name:    "Logit",
+	Link:    logitFunc,
+	InvLink: expitFunc,
+	Deriv:   logitDerivFunc,
+	Deriv2:  logitDeriv2Func,
 }
 
-var RecipSquaredLink = Link{
-	name:    "ReciprocalSquared",
-	link:    genPowFunc(-2, 1),
-	invLink: genPowFunc(-0.5, 1),
-	deriv:   genPowFunc(-3, -2),
-	deriv2:  genPowFunc(-4, 6),
+var recipLink = Link{
+	Name:    "Recip",
+	Link:    genPowFunc(-1, 1),
+	InvLink: genPowFunc(-1, 1),
+	Deriv:   genPowFunc(-2, -1),
+	Deriv2:  genPowFunc(-3, 2),
+}
+
+var recipSquaredLink = Link{
+	Name:    "RecipSquared",
+	Link:    genPowFunc(-2, 1),
+	InvLink: genPowFunc(-0.5, 1),
+	Deriv:   genPowFunc(-3, -2),
+	Deriv2:  genPowFunc(-4, 6),
 }
 
 func logFunc(x []float64, y []float64) {
@@ -158,7 +187,7 @@ func cloglogInvFunc(x []float64, y []float64) {
 	}
 }
 
-func genPowFunc(p float64, s float64) vecFunc {
+func genPowFunc(p float64, s float64) VecFunc {
 	return func(x []float64, y []float64) {
 		for i, _ := range x {
 			y[i] = s * math.Pow(x[i], p)
