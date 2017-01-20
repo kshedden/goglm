@@ -20,6 +20,7 @@ type GLM struct {
 	Aux interface{}
 }
 
+// FitMethodType defines a numerical algorithm for fitting a GLM.
 type FitMethodType int
 
 const (
