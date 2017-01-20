@@ -36,6 +36,8 @@ Missing features
 
 * Less-common GLM families (e.g. Tweedie)
 
+* Offsets
+
 * Inference for survey data
 
 * Marginalization

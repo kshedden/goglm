@@ -35,7 +35,7 @@ func data1(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{1, 2, 2, 3, 1, 3, 2}
 	}
-	return statmodel.DataProviderFromArrays(y, x, w, 3)
+	return statmodel.NewDataProviderFromArrays(y, x, w, 3)
 }
 
 func data2(wgt bool) statmodel.DataProvider {
@@ -48,7 +48,7 @@ func data2(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{2, 1, 3, 3, 4, 2, 3}
 	}
-	return statmodel.DataProviderFromArrays(y, x, w, 3)
+	return statmodel.NewDataProviderFromArrays(y, x, w, 3)
 }
 
 func data3(wgt bool) statmodel.DataProvider {
@@ -60,7 +60,7 @@ func data3(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{3, 3, 2, 3, 1, 3, 2}
 	}
-	return statmodel.DataProviderFromArrays(y, x, w, 3)
+	return statmodel.NewDataProviderFromArrays(y, x, w, 3)
 }
 
 func data4(wgt bool) statmodel.DataProvider {
@@ -73,7 +73,7 @@ func data4(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{3, 3, 2, 3, 1, 3, 2}
 	}
-	return statmodel.DataProviderFromArrays(y, x, w, 3)
+	return statmodel.NewDataProviderFromArrays(y, x, w, 3)
 }
 
 type tdgl struct {
