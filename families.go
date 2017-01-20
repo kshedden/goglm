@@ -1,11 +1,15 @@
 package goglm
 
-import "math"
+import (
+	"fmt"
+	"math"
+	"strings"
+)
 
 type v3Func func([]float64, []float64, []float64, float64) float64
 
 type Family struct {
-	FamType    GLMFamily
+	Name       string
 	LogLike    v3Func
 	Deviance   v3Func
 	validLinks []Link
@@ -13,44 +17,69 @@ type Family struct {
 	Aux        interface{}
 }
 
-var Poisson = Family{
-	FamType:    PoissonFamily,
+func NewFamily(name string) *Family {
+
+	name = strings.ToLower(name)
+
+	switch name {
+	case "poisson":
+		return &poisson
+	case "quasipoisson":
+		return &quasiPoisson
+	case "binomial":
+		return &binomial
+	case "gaussian":
+		return &gaussian
+	case "gamma":
+		return &gamma
+	case "invgaussian":
+		return &invGaussian
+	default:
+		msg := fmt.Sprintf("Unknown family name: %s\n", name)
+		panic(msg)
+	}
+
+	return nil
+}
+
+var poisson = Family{
+	Name:       "Poisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
 	validLinks: []Link{LogLink, IdLink},
 }
 
 // QuasiPoisson is the same as Poisson, except that the scale parameter is estimated.
-var QuasiPoisson = Family{
-	FamType:    QuasiPoissonFamily,
+var quasiPoisson = Family{
+	Name:       "QuasiPoisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
 	validLinks: []Link{LogLink, IdLink},
 }
 
-var Binomial = Family{
-	FamType:    BinomialFamily,
+var binomial = Family{
+	Name:       "Binomial",
 	LogLike:    binomialLogLike,
 	Deviance:   binomialDeviance,
 	validLinks: []Link{LogitLink, LogLink, IdLink},
 }
 
-var Gaussian = Family{
-	FamType:    GaussianFamily,
+var gaussian = Family{
+	Name:       "Gaussian",
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
 	validLinks: []Link{LogLink, IdLink, RecipLink},
 }
 
-var Gamma = Family{
-	FamType:    GammaFamily,
+var gamma = Family{
+	Name:       "Gamma",
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
 	validLinks: []Link{LogLink, IdLink, RecipLink},
 }
 
-var InvGaussian = Family{
-	FamType:    InvGaussianFamily,
+var invGaussian = Family{
+	Name:       "InvGaussian",
 	LogLike:    invGaussLogLike,
 	Deviance:   invGaussianDeviance,
 	validLinks: []Link{RecipSquaredLink, RecipLink, LogLink, IdLink},
@@ -236,7 +265,7 @@ func gaussianDeviance(y, mn, wgt []float64, scale float64) float64 {
 	return dev
 }
 
-func GenNegBinomialFamily(alpha float64, link Link) Family {
+func NewNegBinomialFamily(alpha float64, link Link) *Family {
 
 	loglike := func(y, mn, wt []float64, scale float64) float64 {
 
@@ -296,8 +325,8 @@ func GenNegBinomialFamily(alpha float64, link Link) Family {
 		return dev
 	}
 
-	return Family{
-		FamType:    NegBinomialFamily,
+	return &Family{
+		Name:       "NegBinomial",
 		LogLike:    loglike,
 		Deviance:   deviance,
 		Aux:        NegBinomAux{Alpha: alpha},

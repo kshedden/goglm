@@ -1,6 +1,9 @@
 package goglm
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gonum/floats"
 	"github.com/kshedden/statmodel"
 )
@@ -9,7 +12,7 @@ import (
 type GLM struct {
 	statmodel.IndRegModel
 
-	Fam  Family
+	Fam  *Family
 	Link Link
 	Var  Variance
 
@@ -39,51 +42,41 @@ func (rslt *GLMResults) Scale() float64 {
 	return rslt.scale
 }
 
-type GLMFamily int
-
-const (
-	BinomialFamily = iota
-	GaussianFamily
-	PoissonFamily
-	NegBinomialFamily
-	GammaFamily
-	InvGaussianFamily
-	QuasiPoissonFamily
-)
-
 // NewGLM creates a new GLM object for the given family, using its
 // default link and variance functions.  The link and variance
 // functions can be changed directly, but to safely change the link,
 // use the SetLink method.
-func NewGLM(fam Family, data statmodel.DataProvider) *GLM {
+func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 
 	var link Link
 	var vaf Variance
 
-	switch fam.FamType {
-	case BinomialFamily:
+	fname := strings.ToLower(fam.Name)
+	switch fname {
+	case "binomial":
 		link = LogitLink
 		vaf = BinomVar
-	case PoissonFamily:
+	case "poisson":
 		link = LogLink
 		vaf = IdentVar
-	case QuasiPoissonFamily:
+	case "quasipoisson":
 		link = LogLink
 		vaf = IdentVar
-	case GaussianFamily:
+	case "gaussian":
 		link = IdLink
 		vaf = ConstVar
-	case GammaFamily:
+	case "gamma":
 		link = RecipLink
 		vaf = SquaredVar
-	case InvGaussianFamily:
+	case "invgaussian":
 		link = RecipSquaredLink
 		vaf = CubedVar
-	case NegBinomialFamily:
+	case "negbinomial":
 		alpha := fam.Aux.(NegBinomAux).Alpha
 		return NewNegBinomialGLM(alpha, data)
 	default:
-		panic("Unknown GLM family type")
+		msg := fmt.Sprintf("Unknown GLM family: %s\n", fam.Name)
+		panic(msg)
 	}
 
 	return &GLM{
@@ -102,7 +95,7 @@ type NegBinomAux struct {
 
 func NewNegBinomialGLM(alpha float64, data statmodel.DataProvider) *GLM {
 
-	fam := GenNegBinomialFamily(alpha, LogLink)
+	fam := NewNegBinomialFamily(alpha, LogLink)
 	vaf := GenNegBinomialVariance(alpha)
 
 	return &GLM{
@@ -125,10 +118,10 @@ func (glm *GLM) SetLink(link Link) {
 		panic("Invalid link")
 	}
 
-	if glm.Fam.FamType == NegBinomialFamily {
+	if strings.ToLower(glm.Fam.Name) == "negbinomial" {
 		// Need to reset the family when the link changes
 		alpha := glm.Aux.(NegBinomAux).Alpha
-		fam := GenNegBinomialFamily(alpha, LogLink)
+		fam := NewNegBinomialFamily(alpha, LogLink)
 		glm.Fam = fam
 	}
 	glm.Link = link
@@ -362,7 +355,8 @@ func (glm *GLM) Fit() GLMResults {
 // given parameter values.
 func (glm *GLM) EstimateScale(params []float64) float64 {
 
-	if glm.Fam.FamType == BinomialFamily || glm.Fam.FamType == PoissonFamily {
+	name := strings.ToLower(glm.Fam.Name)
+	if name == "binomial" || name == "poisson" {
 		return 1
 	}
 

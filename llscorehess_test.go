@@ -7,7 +7,7 @@ import (
 )
 
 type ptlsh struct {
-	family  Family
+	family  *Family
 	link    Link
 	data    statmodel.DataProvider
 	params  []float64
@@ -19,7 +19,7 @@ type ptlsh struct {
 
 var pq = []ptlsh{
 	{
-		family:  Poisson,
+		family:  NewFamily("poisson"),
 		data:    data1(false),
 		params:  []float64{0, 0},
 		ll:      -9.48490664979,
@@ -28,7 +28,7 @@ var pq = []ptlsh{
 		obshess: []float64{-7, -10, -10, -86},
 	},
 	{
-		family:  Poisson,
+		family:  NewFamily("poisson"),
 		data:    data1(false),
 		params:  []float64{1, 1},
 		ll:      -659.930531049,
@@ -37,7 +37,7 @@ var pq = []ptlsh{
 		obshess: []float64{-669.4456244, -2944.68298198, -2944.68298198, -13451.94403063},
 	},
 	{
-		family:  Binomial,
+		family:  NewFamily("binomial"),
 		data:    data2(false),
 		params:  []float64{0, 0, 0},
 		ll:      -4.85203026392,
@@ -46,7 +46,7 @@ var pq = []ptlsh{
 		obshess: []float64{-1.75, -2.5, -2, -2.5, -21.5, 3.25, -2, 3.25, -8.5},
 	},
 	{
-		family: Binomial,
+		family: NewFamily("binomial"),
 		link:   LogLink,
 		data:   data2(true),
 		params: []float64{-0.7, 0.1, 0},
@@ -60,7 +60,7 @@ var pq = []ptlsh{
 			518.19721783, 2715.89536808, 941.69106211},
 	},
 	{
-		family: Binomial,
+		family: NewFamily("binomial"),
 		data:   data2(false),
 		params: []float64{1, 0, 1},
 		ll:     -11.818141431,
@@ -71,7 +71,7 @@ var pq = []ptlsh{
 			-0.02006538, 0.08233338, -0.02006538, -1.05735013},
 	},
 	{
-		family: Binomial,
+		family: NewFamily("binomial"),
 		data:   data2(false),
 		params: []float64{0, -1, 2},
 		ll:     -16.8573417434,
@@ -82,7 +82,7 @@ var pq = []ptlsh{
 			-2.86562434, -0.68818286, -2.86562434, -1.18506228},
 	},
 	{
-		family: Gamma,
+		family: NewFamily("gamma"),
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
 		ll:     -43.463688316896253,
@@ -95,7 +95,7 @@ var pq = []ptlsh{
 			-1401.23611111, 7981.70833333, -8048.80555556},
 	},
 	{
-		family: InvGaussian,
+		family: NewFamily("invgaussian"),
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
 		ll:     -46.917965084595942,
@@ -108,7 +108,7 @@ var pq = []ptlsh{
 			-112.07064966, 625.27145184, -640.63104102},
 	},
 	{
-		family: GenNegBinomialFamily(1.5, LogLink),
+		family: NewNegBinomialFamily(1.5, LogLink),
 		data:   data4(true),
 		params: []float64{1, 0, -1},
 		ll:     -77.310157634140779,

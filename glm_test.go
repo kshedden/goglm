@@ -77,7 +77,7 @@ func data4(wgt bool) statmodel.DataProvider {
 }
 
 type tdgl struct {
-	family     Family
+	family     *Family
 	data       statmodel.DataProvider
 	start      []float64
 	params     []float64
@@ -90,7 +90,7 @@ type tdgl struct {
 
 var glm_tests []tdgl = []tdgl{
 	{
-		family:     Gaussian,
+		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data1(true),
 		params:     []float64{1.316285, -0.047555},
@@ -101,7 +101,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Gaussian,
+		family: NewFamily("gaussian"),
 		start:  nil,
 		data:   data2(true),
 		params: []float64{0.191194, 0.046013, 0.090639},
@@ -114,7 +114,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Gaussian,
+		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data3(true),
 		params:     []float64{0.418605, 0.220930},
@@ -125,7 +125,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Poisson,
+		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data1(true),
 		params:     []float64{0.266817, -0.035637},
@@ -136,7 +136,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Poisson,
+		family: NewFamily("poisson"),
 		start:  nil,
 		data:   data2(true),
 		params: []float64{-1.540684, 0.116108, 0.246615},
@@ -149,7 +149,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Poisson,
+		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data3(true),
 		params:     []float64{-0.896361, 0.467334},
@@ -160,7 +160,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Binomial,
+		family: NewFamily("binomial"),
 		start:  nil,
 		data:   data2(true),
 		params: []float64{-1.378328, 0.201911, 0.407917},
@@ -172,7 +172,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Binomial,
+		family:     NewFamily("binomial"),
 		start:      nil,
 		data:       data3(true),
 		params:     []float64{-0.343610, 0.934519},
@@ -183,7 +183,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Binomial,
+		family: NewFamily("binomial"),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{-1.650145, 0.190136, 0.344331},
@@ -196,7 +196,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Binomial,
+		family:     NewFamily("binomial"),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{-0.434175, 0.868350},
@@ -207,7 +207,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Poisson,
+		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data1(false),
 		params:     []float64{0.213361, -0.081530},
@@ -218,7 +218,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Poisson,
+		family: NewFamily("poisson"),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{-1.792499, 0.128696, 0.241203},
@@ -231,7 +231,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Poisson,
+		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{-0.962424, 0.481212},
@@ -242,7 +242,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Gaussian,
+		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data1(false),
 		params:     []float64{1.290837, -0.103586},
@@ -253,7 +253,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: Gaussian,
+		family: NewFamily("gaussian"),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{0.154198, 0.038670, 0.066739},
@@ -266,7 +266,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family:     Gaussian,
+		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{0.4, 0.2},
@@ -277,7 +277,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: InvGaussian,
+		family: NewFamily("invgaussian"),
 		start:  []float64{0.1, 0, 0},
 		data:   data4(true),
 		params: []float64{0.091657, -0.001893, -0.000376},
@@ -290,7 +290,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{IRLSFit},
 	},
 	{
-		family: Gamma,
+		family: NewFamily("gamma"),
 		start:  []float64{0.3, 0.0, 0.0},
 		data:   data4(true),
 		params: []float64{0.302721, -0.003171, -0.000705},
@@ -303,7 +303,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{IRLSFit},
 	},
 	{
-		family: QuasiPoisson,
+		family: NewFamily("quasipoisson"),
 		start:  nil,
 		data:   data2(true),
 		params: []float64{-1.540684, 0.116108, 0.246615},
@@ -316,7 +316,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: GenNegBinomialFamily(1, LogLink),
+		family: NewNegBinomialFamily(1, LogLink),
 		start:  nil,
 		data:   data4(true),
 		params: []float64{1.191131, 0.011851, 0.004809},
@@ -329,7 +329,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: GenNegBinomialFamily(1.5, LogLink),
+		family: NewNegBinomialFamily(1.5, LogLink),
 		start:  nil,
 		data:   data4(true),
 		params: []float64{1.190715, 0.011981, 0.005043},

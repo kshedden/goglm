@@ -2,6 +2,7 @@ package goglm
 
 import (
 	"math"
+	"strings"
 
 	"github.com/gonum/floats"
 	"github.com/gonum/matrix/mat64"
@@ -127,7 +128,8 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 func (glm *GLM) startingMu(y []float64, mn []float64) {
 
 	var q float64
-	if glm.Fam.FamType == BinomialFamily {
+	name := strings.ToLower(glm.Fam.Name)
+	if name == "binomial" {
 		q = 0.5
 	} else {
 		q = floats.Sum(y) / float64(len(y))
