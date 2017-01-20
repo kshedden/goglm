@@ -27,8 +27,6 @@ func NewVariance(name string) *Variance {
 		msg := fmt.Sprintf("Unknown variance function: %s\n", name)
 		panic(msg)
 	}
-
-	return nil
 }
 
 // Variance represents a GLM variance function.

@@ -143,8 +143,9 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 	for glm.Data.Next() {
 
 		yda := glm.Data.YData()
-		n := len(yda)
 		wgts := glm.Data.Weights()
+		off := glm.Data.Offset()
+		n := len(yda)
 
 		// Adjust the allocations
 		linpred = resize(linpred, n)
@@ -157,6 +158,9 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 			for i, x := range xda {
 				linpred[i] += params[j] * x
 			}
+		}
+		if off != nil {
+			floats.AddTo(linpred, linpred, off)
 		}
 
 		// Update the log likelihood value
@@ -190,8 +194,9 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 	for glm.Data.Next() {
 
 		yda := glm.Data.YData()
-		n := len(yda)
 		wgts := glm.Data.Weights()
+		off := glm.Data.Offset()
+		n := len(yda)
 
 		// Adjust the allocations
 		linpred = resize(linpred, n)
@@ -207,6 +212,9 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 			for i, x := range xda {
 				linpred[i] += params[j] * x
 			}
+		}
+		if off != nil {
+			floats.AddTo(linpred, linpred, off)
 		}
 
 		glm.Link.InvLink(linpred, mn)
@@ -252,8 +260,9 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 	for glm.Data.Next() {
 
 		yda := glm.Data.YData()
-		n := len(yda)
 		wgts := glm.Data.Weights()
+		off := glm.Data.Offset()
+		n := len(yda)
 
 		// Adjust the allocations
 		linpred = resize(linpred, n)
@@ -270,6 +279,9 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 			for i, x := range xda {
 				linpred[i] += params[j] * x
 			}
+		}
+		if off != nil {
+			floats.AddTo(linpred, linpred, off)
 		}
 
 		// The mean response
@@ -377,11 +389,13 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 	for glm.Data.Next() {
 
 		yda := glm.Data.YData()
+		wgt := glm.Data.Weights()
+		off := glm.Data.Offset()
 		n := len(yda)
+
 		linpred = resize(linpred, n)
 		mn = resize(mn, n)
 		va = resize(va, n)
-		wgt := glm.Data.Weights()
 
 		zero(linpred)
 		for j := 0; j < nvar; j++ {
@@ -389,6 +403,9 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 			for i, x := range xda {
 				linpred[i] += params[j] * x
 			}
+		}
+		if off != nil {
+			floats.AddTo(linpred, linpred, off)
 		}
 
 		// The mean response and variance

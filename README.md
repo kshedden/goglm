@@ -23,6 +23,8 @@ Supported features
 
 * Estimation for weighted datasets
 
+* Offsets
+
 * Unit tests covering all families with their default links and
   variance functions, and some of the more common non-canonical links
 
@@ -37,8 +39,6 @@ Missing features
 * Model diagnostics
 
 * Less-common GLM families (e.g. Tweedie)
-
-* Offsets
 
 * Inference for survey data
 

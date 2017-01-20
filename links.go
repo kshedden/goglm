@@ -51,8 +51,6 @@ func NewLink(name string) *Link {
 		msg := fmt.Sprintf("Link name unknown: %s\n", name)
 		panic(msg)
 	}
-
-	return nil
 }
 
 var logLink = Link{

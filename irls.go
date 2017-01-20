@@ -43,6 +43,7 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 
 			yda := glm.Data.YData()
 			wgt := glm.Data.Weights()
+			off := glm.Data.Offset()
 			n := len(yda)
 
 			// Allocations
@@ -59,6 +60,10 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 				for i, x := range xda {
 					linpred[i] += params[j] * x
 				}
+			}
+			if off != nil {
+				print("AAA\n")
+				floats.AddTo(linpred, linpred, off)
 			}
 
 			if iter == 0 {

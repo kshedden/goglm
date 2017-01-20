@@ -55,8 +55,6 @@ func NewFamily(name string) *Family {
 		msg := fmt.Sprintf("Unknown family name: %s\n", name)
 		panic(msg)
 	}
-
-	return nil
 }
 
 var poisson = Family{
