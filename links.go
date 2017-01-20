@@ -2,74 +2,72 @@ package goglm
 
 import "math"
 
-type VecFunc func([]float64, []float64)
-
-type LinkType int
-
-const (
-	NoneLinkType = iota
-	LogLinkType
-	IdLinkType
-	LogitLinkType
-	CLogLogLinkType
-	ReciprocalLinkType
-	ReciprocalSquaredLinkType
-)
+type vecFunc func([]float64, []float64)
 
 type Link struct {
-	LinkType LinkType
-	Link     VecFunc
-	InvLink  VecFunc
-	Deriv    VecFunc
-	Deriv2   VecFunc
+	name string
+
+	// Link calculates the link function value (usually mapping
+	// the mean to the linear predictor).
+	link vecFunc
+
+	// InvLink calculates the inverse value of the link function
+	// (usually mapping the linear preditor to the mean).
+	invLink vecFunc
+
+	// Deriv calculates the derivative of the link function.
+	deriv vecFunc
+
+	// Deriv2 calculates the second derivative of the link function.
+	deriv2 vecFunc
 }
 
 var LogLink = Link{
-	LinkType: LogLinkType,
-	Link:     logFunc,
-	InvLink:  expFunc,
-	Deriv:    logDerivFunc,
-	Deriv2:   logDeriv2Func,
+	name:    "Log",
+	link:    logFunc,
+	invLink: expFunc,
+	deriv:   logDerivFunc,
+	deriv2:  logDeriv2Func,
 }
 
 var IdLink = Link{
-	LinkType: IdLinkType,
-	Link:     idFunc,
-	InvLink:  idFunc,
-	Deriv:    idDerivFunc,
-	Deriv2:   idDeriv2Func,
+	name:    "Identity",
+	link:    idFunc,
+	invLink: idFunc,
+	deriv:   idDerivFunc,
+	deriv2:  idDeriv2Func,
 }
 
 var CLogLogLink = Link{
-	LinkType: CLogLogLinkType,
-	Link:     cloglogFunc,
-	InvLink:  cloglogInvFunc,
-	Deriv:    cloglogDerivFunc,
-	Deriv2:   cloglogDeriv2Func,
+	name:    "CLogLog",
+	link:    cloglogFunc,
+	invLink: cloglogInvFunc,
+	deriv:   cloglogDerivFunc,
+	deriv2:  cloglogDeriv2Func,
 }
 
 var LogitLink = Link{
-	LinkType: LogitLinkType,
-	Link:     logitFunc,
-	InvLink:  expitFunc,
-	Deriv:    logitDerivFunc,
-	Deriv2:   logitDeriv2Func,
+	name:    "Logit",
+	link:    logitFunc,
+	invLink: expitFunc,
+	deriv:   logitDerivFunc,
+	deriv2:  logitDeriv2Func,
 }
 
-var ReciprocalLink = Link{
-	LinkType: ReciprocalLinkType,
-	Link:     genPowFunc(-1, 1),
-	InvLink:  genPowFunc(-1, 1),
-	Deriv:    genPowFunc(-2, -1),
-	Deriv2:   genPowFunc(-3, 2),
+var RecipLink = Link{
+	name:    "Reciprocal",
+	link:    genPowFunc(-1, 1),
+	invLink: genPowFunc(-1, 1),
+	deriv:   genPowFunc(-2, -1),
+	deriv2:  genPowFunc(-3, 2),
 }
 
-var ReciprocalSquaredLink = Link{
-	LinkType: ReciprocalSquaredLinkType,
-	Link:     genPowFunc(-2, 1),
-	InvLink:  genPowFunc(-0.5, 1),
-	Deriv:    genPowFunc(-3, -2),
-	Deriv2:   genPowFunc(-4, 6),
+var RecipSquaredLink = Link{
+	name:    "ReciprocalSquared",
+	link:    genPowFunc(-2, 1),
+	invLink: genPowFunc(-0.5, 1),
+	deriv:   genPowFunc(-3, -2),
+	deriv2:  genPowFunc(-4, 6),
 }
 
 func logFunc(x []float64, y []float64) {
@@ -160,7 +158,7 @@ func cloglogInvFunc(x []float64, y []float64) {
 	}
 }
 
-func genPowFunc(p float64, s float64) VecFunc {
+func genPowFunc(p float64, s float64) vecFunc {
 	return func(x []float64, y []float64) {
 		for i, _ := range x {
 			y[i] = s * math.Pow(x[i], p)

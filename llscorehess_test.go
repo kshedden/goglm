@@ -127,7 +127,7 @@ func TestLLScoreHess(t *testing.T) {
 	for _, ps := range pq {
 		glm := NewGLM(ps.family, ps.data)
 
-		if ps.link.LinkType != NoneLinkType {
+		if ps.link.name != "" {
 			glm.SetLink(ps.link)
 		}
 

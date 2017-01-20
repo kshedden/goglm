@@ -74,10 +74,10 @@ func NewGLM(fam Family, data statmodel.DataProvider) *GLM {
 		link = IdLink
 		vaf = ConstVar
 	case GammaFamily:
-		link = ReciprocalLink
+		link = RecipLink
 		vaf = SquaredVar
 	case InvGaussianFamily:
-		link = ReciprocalSquaredLink
+		link = RecipSquaredLink
 		vaf = CubedVar
 	case NegBinomialFamily:
 		alpha := fam.Aux.(NegBinomAux).Alpha
@@ -121,7 +121,7 @@ func NewNegBinomialGLM(alpha float64, data statmodel.DataProvider) *GLM {
 // family.
 func (glm *GLM) SetLink(link Link) {
 
-	if !glm.Fam.IsValidLink(link.LinkType) {
+	if !glm.Fam.IsValidLink(link) {
 		panic("Invalid link")
 	}
 
@@ -165,7 +165,7 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 		}
 
 		// Update the log likelihood value
-		glm.Link.InvLink(linpred, mn)
+		glm.Link.invLink(linpred, mn)
 		loglike += glm.Fam.LogLike(yda, mn, wgts, scale)
 	}
 
@@ -214,8 +214,8 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 			}
 		}
 
-		glm.Link.InvLink(linpred, mn)
-		glm.Link.Deriv(mn, deriv)
+		glm.Link.invLink(linpred, mn)
+		glm.Link.deriv(mn, deriv)
 		glm.Var.Var(mn, va)
 
 		scoreFactor(yda, mn, deriv, va, fac)
@@ -276,9 +276,9 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 		}
 
 		// The mean response
-		glm.Link.InvLink(linpred, mn)
+		glm.Link.invLink(linpred, mn)
 
-		glm.Link.Deriv(mn, lderiv)
+		glm.Link.deriv(mn, lderiv)
 		glm.Var.Var(mn, va)
 
 		// Factor for the expected Hessian
@@ -290,7 +290,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 		if ht == statmodel.ObsHess {
 			vad = resize(vad, n)
 			lderiv2 = resize(lderiv2, n)
-			glm.Link.Deriv2(mn, lderiv2)
+			glm.Link.deriv2(mn, lderiv2)
 			glm.Var.Deriv(mn, vad)
 			scoreFactor(yda, mn, lderiv, va, sfac)
 
@@ -392,7 +392,7 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 		}
 
 		// The mean response and variance
-		glm.Link.InvLink(linpred, mn)
+		glm.Link.invLink(linpred, mn)
 		glm.Var.Var(mn, va)
 
 		for i, y := range yda {

@@ -63,10 +63,10 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			if iter == 0 {
 				glm.startingMu(yda, mn)
 			} else {
-				glm.Link.InvLink(linpred, mn)
+				glm.Link.invLink(linpred, mn)
 			}
 
-			glm.Link.Deriv(mn, lderiv)
+			glm.Link.deriv(mn, lderiv)
 			glm.Var.Var(mn, va)
 
 			devi += glm.Fam.Deviance(yda, mn, wgt, 1)

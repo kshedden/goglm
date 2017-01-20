@@ -1,8 +1,8 @@
 package goglm
 
 type Variance struct {
-	Var   VecFunc
-	Deriv VecFunc
+	Var   vecFunc
+	Deriv vecFunc
 }
 
 var BinomVar = Variance{

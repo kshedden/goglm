@@ -8,7 +8,7 @@ type Family struct {
 	FamType    GLMFamily
 	LogLike    v3Func
 	Deviance   v3Func
-	validLinks []LinkType
+	validLinks []Link
 	link       Link // Used only for negative binomial
 	Aux        interface{}
 }
@@ -17,7 +17,7 @@ var Poisson = Family{
 	FamType:    PoissonFamily,
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []LinkType{LogLinkType, IdLinkType},
+	validLinks: []Link{LogLink, IdLink},
 }
 
 // QuasiPoisson is the same as Poisson, except that the scale parameter is estimated.
@@ -25,41 +25,41 @@ var QuasiPoisson = Family{
 	FamType:    QuasiPoissonFamily,
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []LinkType{LogLinkType, IdLinkType},
+	validLinks: []Link{LogLink, IdLink},
 }
 
 var Binomial = Family{
 	FamType:    BinomialFamily,
 	LogLike:    binomialLogLike,
 	Deviance:   binomialDeviance,
-	validLinks: []LinkType{LogitLinkType, LogLinkType, IdLinkType},
+	validLinks: []Link{LogitLink, LogLink, IdLink},
 }
 
 var Gaussian = Family{
 	FamType:    GaussianFamily,
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
-	validLinks: []LinkType{LogLinkType, IdLinkType, ReciprocalLinkType},
+	validLinks: []Link{LogLink, IdLink, RecipLink},
 }
 
 var Gamma = Family{
 	FamType:    GammaFamily,
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
-	validLinks: []LinkType{LogLinkType, IdLinkType, ReciprocalLinkType},
+	validLinks: []Link{LogLink, IdLink, RecipLink},
 }
 
 var InvGaussian = Family{
 	FamType:    InvGaussianFamily,
 	LogLike:    invGaussLogLike,
 	Deviance:   invGaussianDeviance,
-	validLinks: []LinkType{ReciprocalSquaredLinkType, ReciprocalLinkType, LogLinkType, IdLinkType},
+	validLinks: []Link{RecipSquaredLink, RecipLink, LogLink, IdLink},
 }
 
-func (fam *Family) IsValidLink(lt LinkType) bool {
+func (fam *Family) IsValidLink(link Link) bool {
 
 	for _, q := range fam.validLinks {
-		if lt == q {
+		if link.name == q.name {
 			return true
 		}
 	}
@@ -245,7 +245,7 @@ func GenNegBinomialFamily(alpha float64, link Link) Family {
 		var lp []float64
 
 		lp = resize(lp, len(y))
-		link.Link(mn, lp)
+		link.link(mn, lp)
 		c3, _ := math.Lgamma(1 / alpha)
 
 		for i := 0; i < len(y); i++ {
@@ -275,7 +275,7 @@ func GenNegBinomialFamily(alpha float64, link Link) Family {
 		var lp []float64
 
 		lp = resize(lp, len(y))
-		link.Link(mn, lp)
+		link.link(mn, lp)
 
 		for i := 0; i < len(y); i++ {
 			if wt != nil {
@@ -301,7 +301,7 @@ func GenNegBinomialFamily(alpha float64, link Link) Family {
 		LogLike:    loglike,
 		Deviance:   deviance,
 		Aux:        NegBinomAux{Alpha: alpha},
-		validLinks: []LinkType{LogLinkType, IdLinkType},
+		validLinks: []Link{LogLink, IdLink},
 		link:       link,
 	}
 }
