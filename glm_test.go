@@ -1,6 +1,7 @@
 package goglm
 
 import (
+	"fmt"
 	"math"
 	"testing"
 
@@ -372,6 +373,17 @@ func TestFit(t *testing.T) {
 			if math.Abs(result.Scale()-ds.scale) > 1e-5 {
 				t.Fail()
 			}
+		}
+	}
+}
+
+func TestSetLink(t *testing.T) {
+
+	fam := NewFamily("binomial")
+	for _, v := range []string{"logit", "LoGiT", "log", "identity"} {
+		if !fam.IsValidLink(NewLink(v)) {
+			fmt.Printf("%v\n", v)
+			t.Fail()
 		}
 	}
 }

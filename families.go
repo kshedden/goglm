@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Vec3Func is a function with 3 float64 array arguments.
 type Vec3Func func([]float64, []float64, []float64, float64) float64
 
 // Family represents a generalized linear model family.
@@ -62,7 +63,7 @@ var poisson = Family{
 	Name:       "Poisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []string{"log", "id"},
+	validLinks: []string{"log", "identity"},
 }
 
 // QuasiPoisson is the same as Poisson, except that the scale parameter is estimated.
@@ -70,35 +71,35 @@ var quasiPoisson = Family{
 	Name:       "QuasiPoisson",
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []string{"log", "id"},
+	validLinks: []string{"log", "identity"},
 }
 
 var binomial = Family{
 	Name:       "Binomial",
 	LogLike:    binomialLogLike,
 	Deviance:   binomialDeviance,
-	validLinks: []string{"logit", "log", "id"},
+	validLinks: []string{"logit", "log", "identity"},
 }
 
 var gaussian = Family{
 	Name:       "Gaussian",
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
-	validLinks: []string{"log", "id", "recip"},
+	validLinks: []string{"log", "identity", "recip"},
 }
 
 var gamma = Family{
 	Name:       "Gamma",
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
-	validLinks: []string{"log", "id", "recip"},
+	validLinks: []string{"log", "identity", "recip"},
 }
 
 var invGaussian = Family{
 	Name:       "InvGaussian",
 	LogLike:    invGaussLogLike,
 	Deviance:   invGaussianDeviance,
-	validLinks: []string{"recipsquared", "recip", "log", "id"},
+	validLinks: []string{"recipsquared", "recip", "log", "identity"},
 }
 
 // IsValidLink returns true or false based on whether the link is
@@ -350,7 +351,7 @@ func NewNegBinomialFamily(alpha float64, link *Link) *Family {
 		LogLike:    loglike,
 		Deviance:   deviance,
 		Aux:        NegBinomAux{Alpha: alpha},
-		validLinks: []string{"log", "id"},
+		validLinks: []string{"log", "identity"},
 		link:       link,
 	}
 }

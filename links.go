@@ -6,17 +6,18 @@ import (
 	"strings"
 )
 
+// VecFunc is a function with two float64 array arguments.
 type VecFunc func([]float64, []float64)
 
 type Link struct {
 	Name string
 
-	// Link calculates the link function value (usually mapping
-	// the mean to the linear predictor).
+	// Link calculates the link function (usually mapping the mean
+	// value to the linear predictor).
 	Link VecFunc
 
-	// InvLink calculates the inverse value of the link function
-	// (usually mapping the linear preditor to the mean).
+	// InvLink calculates the inverse of the link function
+	// (usually mapping the linear predictor to the mean value).
 	InvLink VecFunc
 
 	// Deriv calculates the derivative of the link function.
@@ -26,6 +27,9 @@ type Link struct {
 	Deriv2 VecFunc
 }
 
+// NewLink returns a link function object corresponding to the given
+// name.  Supported values are log, identity, cloglog, logit, recip,
+// and recipsquared.
 func NewLink(name string) *Link {
 
 	name = strings.ToLower(name)
@@ -33,7 +37,7 @@ func NewLink(name string) *Link {
 	switch name {
 	case "log":
 		return &logLink
-	case "ident":
+	case "identity":
 		return &idLink
 	case "cloglog":
 		return &cLogLogLink

@@ -43,9 +43,7 @@ func (rslt *GLMResults) Scale() float64 {
 }
 
 // NewGLM creates a new GLM object for the given family, using its
-// default link and variance functions.  The link and variance
-// functions can be changed directly, but to safely change the link,
-// use the SetLink method.
+// default link and variance functions.
 func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 
 	var link *Link
@@ -58,12 +56,12 @@ func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 		vaf = NewVariance("binomial")
 	case "poisson":
 		link = NewLink("log")
-		vaf = NewVariance("ident")
+		vaf = NewVariance("identity")
 	case "quasipoisson":
 		link = NewLink("log")
-		vaf = NewVariance("ident")
+		vaf = NewVariance("identity")
 	case "gaussian":
-		link = NewLink("ident")
+		link = NewLink("identity")
 		vaf = NewVariance("const")
 	case "gamma":
 		link = NewLink("recip")
@@ -233,7 +231,9 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 }
 
 // Hessian returns the Hessian matrix for the generalized linear model
-// at the given parameter values.
+// at the given parameter values.  The Hessian is returned as a
+// one-dimensional array, which is the vectorized form of the Hessian
+// matrix.  Either the observed or expected Hessian can be calculated.
 func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, hess []float64) {
 
 	var linpred []float64
@@ -319,7 +319,9 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 	}
 }
 
-// Fit estimates the parameters of the GLM and returns a results object.
+// Fit estimates the parameters of the GLM and returns a results
+// object.  Methods of statmodel.BaseResults can be used to obtain
+// many attributes of the fitted model.
 func (glm *GLM) Fit() GLMResults {
 
 	nvar := glm.Data.Nvar()

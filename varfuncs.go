@@ -6,8 +6,8 @@ import (
 )
 
 // NewVariance returns a new variance function object corresponding to
-// the given name.  Supported names are binomial, const, cubed, ident,
-// and, squared.
+// the given name.  Supported names are binomial, const, cubed,
+// identity, and, squared.
 func NewVariance(name string) *Variance {
 
 	name = strings.ToLower(name)
@@ -15,7 +15,7 @@ func NewVariance(name string) *Variance {
 
 	case "binomial":
 		return &binomVariance
-	case "ident":
+	case "identity":
 		return &identVariance
 	case "const":
 		return &constVariance
