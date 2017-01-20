@@ -1,4 +1,4 @@
-*goglm* supports estimation of generalized linear models in Go.
+__goglm__ supports estimation of generalized linear models in Go.
 
 The most basic usage is as follows:
 
@@ -8,8 +8,10 @@ result := glm.Fit()
 ```
 
 where `family` is a GLM family provided by this package,
-e.g. `Binomial`, and `data` is a "DataProvider" as defined in
-[statmodel](http://github.com/kshedden/statmodel).
+e.g. `Binomial`, and `data` is a "DataProvider" as defined in the
+[statmodel](http://github.com/kshedden/statmodel) package.  The
+DataProvider is used to feed data to the GLM in chunks using a
+column-oriented storage layout.
 
 
 Supported features
@@ -27,6 +29,8 @@ Missing features
 ----------------
 
 * Regularized (ridge/LASSO) estimation
+
+* Performance assessments
 
 * Model diagnostics
 
