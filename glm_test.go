@@ -355,6 +355,17 @@ var glm_tests []tdgl = []tdgl{
 		scale:      0.14064363313622641,
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
+	{
+		family:     NewFamily("poisson"),
+		start:      nil,
+		data:       data5(true),
+		params:     []float64{-0.183029, -0.075427},
+		stderr:     []float64{0.236279, 0.074241},
+		vcov:       []float64{0.055828, -0.001225, -0.001225, 0.005512},
+		ll:         -15.259195632772048,
+		scale:      1.0,
+		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+	},
 }
 
 func TestFit(t *testing.T) {

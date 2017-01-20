@@ -1,6 +1,6 @@
 __goglm__ supports estimation of generalized linear models in Go.
 
-An example of the most basic usage is as follows:
+A basic usage example is as follows:
 
 ```
 glm := NewGLM(NewFamily("binomial"), data)
@@ -40,10 +40,12 @@ Missing features
 
 * Less-common GLM families (e.g. Tweedie)
 
-* Inference for survey data
-
 * Marginalization
 
 * Missing data handling
 
+* Multicore optimization
+
 * GEE
+
+* Inference for survey data

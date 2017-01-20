@@ -62,7 +62,6 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 				}
 			}
 			if off != nil {
-				print("AAA\n")
 				floats.AddTo(linpred, linpred, off)
 			}
 
@@ -89,8 +88,14 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			}
 
 			// Create an adjusted response for WLS
-			for i, _ := range yda {
-				adjy[i] = linpred[i] + lderiv[i]*(yda[i]-mn[i])
+			if off == nil {
+				for i, _ := range yda {
+					adjy[i] = linpred[i] + lderiv[i]*(yda[i]-mn[i])
+				}
+			} else {
+				for i, _ := range yda {
+					adjy[i] = linpred[i] + lderiv[i]*(yda[i]-mn[i]) - off[i]
+				}
 			}
 
 			// Update the weighted moment matrices
