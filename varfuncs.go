@@ -112,11 +112,11 @@ func cubedVarDeriv(mn []float64, v []float64) {
 	}
 }
 
-// NewNegBinomialVariance returns a variance function for the negative
+// NewNegBinomVariance returns a variance function for the negative
 // binomial family, using the given parameter alpha to determine the
 // mean/variance relationship.  The variance for mean m is m +
 // alpha*m^2.
-func NewNegBinomialVariance(alpha float64) *Variance {
+func NewNegBinomVariance(alpha float64) *Variance {
 
 	vaf := func(mn []float64, v []float64) {
 		for i, m := range mn {

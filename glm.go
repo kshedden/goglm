@@ -69,9 +69,9 @@ func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 	case "invgaussian":
 		link = NewLink("recipsquared")
 		vaf = NewVariance("cubed")
-	case "negbinomial":
+	case "negbinom":
 		alpha := fam.Aux.(NegBinomAux).Alpha
-		return NewNegBinomialGLM(alpha, data)
+		return NewNegBinomGLM(alpha, data)
 	default:
 		msg := fmt.Sprintf("Unknown GLM family: %s\n", fam.Name)
 		panic(msg)
@@ -91,14 +91,14 @@ type NegBinomAux struct {
 	Alpha float64
 }
 
-// NewNegBinomialGLM creates a GLM object with a negative binomial
-// family type, using the given parameter alpha to determine the
+// NewNegBinomGLM creates a GLM object with a negative binomial family
+// type, using the given parameter alpha to determine the
 // mean/variance relationship.  The variance corresponding to mean m
 // is m + alpha*m^2.
-func NewNegBinomialGLM(alpha float64, data statmodel.DataProvider) *GLM {
+func NewNegBinomGLM(alpha float64, data statmodel.DataProvider) *GLM {
 
-	fam := NewNegBinomialFamily(alpha, NewLink("log"))
-	vaf := NewNegBinomialVariance(alpha)
+	fam := NewNegBinomFamily(alpha, NewLink("log"))
+	vaf := NewNegBinomVariance(alpha)
 
 	return &GLM{
 		IndRegModel: statmodel.IndRegModel{Data: data},
@@ -120,10 +120,10 @@ func (glm *GLM) SetLink(link *Link) {
 		panic("Invalid link")
 	}
 
-	if strings.ToLower(glm.Fam.Name) == "negbinomial" {
+	if strings.ToLower(glm.Fam.Name) == "negbinom" {
 		// Need to reset the family when the link changes
 		alpha := glm.Aux.(NegBinomAux).Alpha
-		fam := NewNegBinomialFamily(alpha, NewLink("log"))
+		fam := NewNegBinomFamily(alpha, NewLink("log"))
 		glm.Fam = fam
 	}
 	glm.Link = link

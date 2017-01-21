@@ -108,7 +108,7 @@ var pq = []ptlsh{
 			-112.07064966, 625.27145184, -640.63104102},
 	},
 	{
-		family: NewNegBinomialFamily(1.5, NewLink("log")),
+		family: NewNegBinomFamily(1.5, NewLink("log")),
 		data:   data4(true),
 		params: []float64{1, 0, -1},
 		ll:     -77.310157634140779,

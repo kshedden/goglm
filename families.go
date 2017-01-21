@@ -282,9 +282,9 @@ func gaussianDeviance(y, mn, wgt []float64, scale float64) float64 {
 	return dev
 }
 
-// NewNegBinomialFamily returns a new family object for the negative
+// NewNegBinomFamily returns a new family object for the negative
 // binomial family, using the given link function.
-func NewNegBinomialFamily(alpha float64, link *Link) *Family {
+func NewNegBinomFamily(alpha float64, link *Link) *Family {
 
 	loglike := func(y, mn, wt []float64, scale float64) float64 {
 
@@ -345,7 +345,7 @@ func NewNegBinomialFamily(alpha float64, link *Link) *Family {
 	}
 
 	return &Family{
-		Name:       "NegBinomial",
+		Name:       "NegBinom",
 		LogLike:    loglike,
 		Deviance:   deviance,
 		Aux:        NegBinomAux{Alpha: alpha},

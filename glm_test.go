@@ -330,7 +330,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: NewNegBinomialFamily(1, NewLink("log")),
+		family: NewNegBinomFamily(1, NewLink("log")),
 		start:  nil,
 		data:   data4(true),
 		params: []float64{1.191131, 0.011851, 0.004809},
@@ -343,7 +343,7 @@ var glm_tests []tdgl = []tdgl{
 		fitmethods: []FitMethodType{GradientFit, IRLSFit},
 	},
 	{
-		family: NewNegBinomialFamily(1.5, NewLink("log")),
+		family: NewNegBinomFamily(1.5, NewLink("log")),
 		start:  nil,
 		data:   data4(true),
 		params: []float64{1.190715, 0.011981, 0.005043},
