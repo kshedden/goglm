@@ -12,24 +12,24 @@ import (
 type GLM struct {
 	statmodel.IndRegModel
 
-	Fam  *Family
-	Link *Link
-	Var  *Variance
+	// The GLM family
+	Fam *Family
 
-	FitMethod FitMethodType
-	Start     []float64
+	// The GLM link function
+	Link *Link
+
+	// The GLM variance function
+	Var *Variance
+
+	// Either IRLS (default) or Gradient
+	FitMethod string
+
+	// Starting values, optional
+	Start []float64
 
 	// Additional information that is model-specific
 	Aux interface{}
 }
-
-// FitMethodType defines a numerical algorithm for fitting a GLM.
-type FitMethodType int
-
-const (
-	GradientFit = iota
-	IRLSFit
-)
 
 // GLMResults describes the results of a fitted generalized linear model.
 type GLMResults struct {
@@ -82,7 +82,7 @@ func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
 		Fam:         fam,
 		Link:        link,
 		Var:         vaf,
-		FitMethod:   IRLSFit,
+		FitMethod:   "IRLS",
 	}
 }
 
@@ -105,7 +105,7 @@ func NewNegBinomGLM(alpha float64, data statmodel.DataProvider) *GLM {
 		Fam:         fam,
 		Link:        NewLink("log"),
 		Var:         vaf,
-		FitMethod:   IRLSFit,
+		FitMethod:   "IRLS",
 		Aux:         NegBinomAux{Alpha: alpha},
 	}
 }
@@ -348,7 +348,7 @@ func (glm *GLM) Fit() GLMResults {
 
 	var params []float64
 
-	if glm.FitMethod == GradientFit {
+	if strings.ToLower(glm.FitMethod) == "gradient" {
 		params, _ = statmodel.FitParams(glm, start)
 	} else {
 		params = glm.fitIRLS(start, maxiter)

@@ -99,7 +99,7 @@ type tdgl struct {
 	vcov       []float64
 	ll         float64
 	scale      float64
-	fitmethods []FitMethodType
+	fitmethods []string
 }
 
 var glm_tests []tdgl = []tdgl{
@@ -112,7 +112,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.077091, -0.004205, -0.004205, 0.006541},
 		ll:         -19.14926021670413,
 		scale:      1.0414236578435769,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -125,7 +125,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.011730, 0.001831, 0.006768},
 		ll:         -11.876495505764467,
 		scale:      0.25882586275287583,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -136,7 +136,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.018551, -0.012367, -0.012367, 0.052560},
 		ll:         -11.862285137866323,
 		scale:      0.26589147286821707,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -147,7 +147,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.055780, -0.001012, -0.001012, 0.004553},
 		ll:         -19.00280708909699,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -160,7 +160,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.174483, 0.019897, 0.080284},
 		ll:         -13.098177137990557,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -171,7 +171,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.183927, -0.157139, -0.157139, 0.419036},
 		ll:         -13.768882387425702,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -183,7 +183,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.258570, 0.037427, 0.132078},
 		ll:         -11.17418536789415,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -194,7 +194,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.306388, -0.227123, -0.227123, 0.927473},
 		ll:         -11.245509472906111,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -207,7 +207,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.684836, 0.116028, 0.352157},
 		ll:         -3.9607532681097091,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -218,7 +218,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.688967, -0.330063, -0.330063, 1.707998},
 		ll:         -4.53963553741,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -229,7 +229,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.127517, -0.005034, -0.005034, 0.010067},
 		ll:         -9.1041354864426385,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -242,7 +242,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.515732, 0.073083, 0.246377},
 		ll:         -4.3466061504389559,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -253,7 +253,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.430902, -0.292705, -0.292705, 0.878115},
 		ll:         -5.4060591253,
 		scale:      1,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -264,7 +264,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.208581, -0.024254, -0.024254, 0.016978},
 		ll:         -9.621454,
 		scale:      1.21752988048,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -277,7 +277,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.032931, 0.006884, 0.020209},
 		ll:         -4.596270,
 		scale:      0.334176605228,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -288,7 +288,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.048, -0.016, -0.016, 0.112},
 		ll:         -4.944550,
 		scale:      0.32,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewFamily("invgaussian"),
@@ -301,7 +301,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.000353, 0.000086, 0.000220},
 		ll:         -33.701849656107399,
 		scale:      0.074887605672913735,
-		fitmethods: []FitMethodType{IRLSFit},
+		fitmethods: []string{"IRLS"},
 	},
 	{
 		family: NewFamily("gamma"),
@@ -314,7 +314,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.000999, 0.000250, 0.000619},
 		ll:         -31.687753839200358,
 		scale:      0.25143442760931506,
-		fitmethods: []FitMethodType{IRLSFit},
+		fitmethods: []string{"IRLS"},
 	},
 	{
 		family: NewFamily("quasipoisson"),
@@ -327,7 +327,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.1357514164991272, 0.015480514629643507, 0.06246283334454094},
 		ll:         -13.098177137990557,
 		scale:      0.7780190501841399,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewNegBinomFamily(1, NewLink("log")),
@@ -340,7 +340,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.011408, 0.002968, 0.007012},
 		ll:         -39.875709730019153,
 		scale:      0.19468567690459238,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family: NewNegBinomFamily(1.5, NewLink("log")),
@@ -353,7 +353,7 @@ var glm_tests []tdgl = []tdgl{
 			-0.011417, 0.002974, 0.007017},
 		ll:         -42.669972197288509,
 		scale:      0.14064363313622641,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -364,7 +364,7 @@ var glm_tests []tdgl = []tdgl{
 		vcov:       []float64{0.055828, -0.001225, -0.001225, 0.005512},
 		ll:         -15.259195632772048,
 		scale:      1.0,
-		fitmethods: []FitMethodType{GradientFit, IRLSFit},
+		fitmethods: []string{"Gradient", "IRLS"},
 	},
 }
 
