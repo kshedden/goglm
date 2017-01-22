@@ -1,7 +1,6 @@
 package goglm
 
 import (
-	"fmt"
 	"math"
 	"testing"
 
@@ -99,6 +98,7 @@ type tdgl struct {
 	vcov       []float64
 	ll         float64
 	scale      float64
+	l2wgt      []float64
 	fitmethods []string
 }
 
@@ -366,6 +366,42 @@ var glm_tests []tdgl = []tdgl{
 		scale:      1.0,
 		fitmethods: []string{"Gradient", "IRLS"},
 	},
+	{
+		family:     NewFamily("poisson"),
+		start:      nil,
+		data:       data1(true),
+		params:     []float64{0.256717, -0.035340},
+		scale:      1.0,
+		l2wgt:      []float64{0.1, 0.1},
+		fitmethods: []string{"Gradient"},
+	},
+	{
+		family:     NewFamily("poisson"),
+		start:      nil,
+		data:       data2(true),
+		params:     []float64{-0.921685, 0.032864, 0.064429},
+		scale:      1.0,
+		l2wgt:      []float64{0.2, 0.2, 0.2},
+		fitmethods: []string{"Gradient"},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(true),
+		params:     []float64{-0.640768, 0.092631, 0.175485},
+		scale:      1.0,
+		l2wgt:      []float64{0.2, 0.2, 0.2},
+		fitmethods: []string{"Gradient"},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(true),
+		params:     []float64{-0.659042, 0.097647, 0.187009},
+		scale:      1.0,
+		l2wgt:      []float64{0.2, 0, 0.1},
+		fitmethods: []string{"Gradient"},
+	},
 }
 
 func TestFit(t *testing.T) {
@@ -376,9 +412,22 @@ func TestFit(t *testing.T) {
 			glm = NewGLM(ds.family, ds.data)
 			glm.Start = ds.start
 			glm.FitMethod = fmeth
+			glm.L2wgt = ds.l2wgt
 			result := glm.Fit()
 
 			if !vectorClose(result.Params(), ds.params, 1e-5) {
+				t.Fail()
+			}
+
+			if math.Abs(result.Scale()-ds.scale) > 1e-5 {
+				t.Fail()
+			}
+
+			// No stderr or vcov with regularization
+			if ds.l2wgt != nil {
+				continue
+			}
+			if !scalarClose(result.LogLike(), ds.ll, 1e-5) {
 				t.Fail()
 			}
 
@@ -387,14 +436,6 @@ func TestFit(t *testing.T) {
 			}
 
 			if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
-				t.Fail()
-			}
-
-			if !scalarClose(result.LogLike(), ds.ll, 1e-5) {
-				t.Fail()
-			}
-
-			if math.Abs(result.Scale()-ds.scale) > 1e-5 {
 				t.Fail()
 			}
 		}
@@ -406,7 +447,6 @@ func TestSetLink(t *testing.T) {
 	fam := NewFamily("binomial")
 	for _, v := range []string{"logit", "LoGiT", "log", "identity"} {
 		if !fam.IsValidLink(NewLink(v)) {
-			fmt.Printf("%v\n", v)
 			t.Fail()
 		}
 	}

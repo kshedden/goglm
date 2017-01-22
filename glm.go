@@ -27,6 +27,10 @@ type GLM struct {
 	// Starting values, optional
 	Start []float64
 
+	// L2 (ridge) weights, optional.  Must fit using Gradient
+	// method if present.
+	L2wgt []float64
+
 	// Additional information that is model-specific
 	Aux interface{}
 }
@@ -155,17 +159,23 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 		zero(linpred)
 		for j := 0; j < nvar; j++ {
 			xda := glm.Data.XData(j)
-			for i, x := range xda {
-				linpred[i] += params[j] * x
-			}
+			floats.AddScaled(linpred, params[j], xda)
 		}
 		if off != nil {
-			floats.AddTo(linpred, linpred, off)
+			floats.Add(linpred, off)
 		}
 
 		// Update the log likelihood value
 		glm.Link.InvLink(linpred, mn)
 		loglike += glm.Fam.LogLike(yda, mn, wgts, scale)
+	}
+
+	// Account for the L2 penalty
+	if glm.L2wgt != nil {
+		nobs := float64(glm.Data.Nobs())
+		for j, v := range glm.L2wgt {
+			loglike -= nobs * v * params[j] * params[j] / 2
+		}
 	}
 
 	return loglike
@@ -186,6 +196,7 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 	var deriv []float64
 	var va []float64
 	var fac []float64
+	var facw []float64
 
 	nvar := glm.Data.Nvar()
 	glm.Data.Reset()
@@ -204,17 +215,16 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 		deriv = resize(deriv, n)
 		va = resize(va, n)
 		fac = resize(fac, n)
+		facw = resize(facw, n)
 
 		// Update the linear predictor
 		zero(linpred)
 		for j := 0; j < nvar; j++ {
 			xda := glm.Data.XData(j)
-			for i, x := range xda {
-				linpred[i] += params[j] * x
-			}
+			floats.AddScaled(linpred, params[j], xda)
 		}
 		if off != nil {
-			floats.AddTo(linpred, linpred, off)
+			floats.Add(linpred, off)
 		}
 
 		glm.Link.InvLink(linpred, mn)
@@ -225,15 +235,21 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 
 		for j := 0; j < nvar; j++ {
 			xda := glm.Data.XData(j)
+
 			if wgts == nil {
-				for i, x := range xda {
-					score[j] += fac[i] * x
-				}
+				score[j] += floats.Dot(fac, xda)
 			} else {
-				for i, x := range xda {
-					score[j] += wgts[i] * fac[i] * x
-				}
+				floats.MulTo(facw, fac, wgts)
+				score[j] += floats.Dot(facw, xda)
 			}
+		}
+	}
+
+	// Account for the L2 penalty
+	if glm.L2wgt != nil {
+		nobs := float64(glm.Data.Nobs())
+		for j, v := range glm.L2wgt {
+			score[j] -= nobs * v * params[j]
 		}
 	}
 }
@@ -276,12 +292,10 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 		zero(linpred)
 		for j := 0; j < nvar; j++ {
 			xda := glm.Data.XData(j)
-			for i, x := range xda {
-				linpred[i] += params[j] * x
-			}
+			floats.AddScaled(linpred, params[j], xda)
 		}
 		if off != nil {
-			floats.AddTo(linpred, linpred, off)
+			floats.Add(linpred, off)
 		}
 
 		// The mean response
@@ -313,6 +327,8 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 			}
 		}
 
+		// Update the Hessian matrix
+		// TODO: use blas/floats
 		for j1 := 0; j1 < nvar; j1++ {
 			x1 := glm.Data.XData(j1)
 			for j2 := 0; j2 < nvar; j2++ {
@@ -327,6 +343,14 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 					}
 				}
 			}
+		}
+	}
+
+	// Account for the L2 penalty
+	if glm.L2wgt != nil {
+		nobs := float64(glm.Data.Nobs())
+		for j, v := range glm.L2wgt {
+			hess[j*nvar+j] -= nobs * v
 		}
 	}
 }

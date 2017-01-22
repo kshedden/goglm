@@ -23,6 +23,8 @@ Supported features
 
 * Estimation for weighted datasets
 
+* Regularized (ridge/LASSO) estimation
+
 * Offsets
 
 * Unit tests covering all families with their default links and
@@ -31,8 +33,6 @@ Supported features
 
 Missing features
 ----------------
-
-* Regularized (ridge/LASSO) estimation
 
 * Performance assessments
 
