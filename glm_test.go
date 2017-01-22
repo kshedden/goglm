@@ -438,6 +438,9 @@ func TestFit(t *testing.T) {
 			if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
 				t.Fail()
 			}
+
+			// Smoke test
+			result.Summary()
 		}
 	}
 }

@@ -5,6 +5,7 @@ A basic usage example is as follows:
 ```
 glm := NewGLM(NewFamily("binomial"), data)
 result := glm.Fit()
+print(result.Summary())
 ```
 
 where `NewFamily` returns a GLM family (e.g. `Binomial`), and `data`
