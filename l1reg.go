@@ -1,6 +1,10 @@
 package goglm
 
-import "github.com/kshedden/statmodel"
+import (
+	"strings"
+
+	"github.com/kshedden/statmodel"
+)
 
 // Adapter that satisfies statmodel.L1RegFitter
 type glml1reg struct {
@@ -60,12 +64,17 @@ func (glm *glml1reg) CloneWithNewData(newdata statmodel.DataProvider) statmodel.
 // equal to 1.
 func (glm *GLM) fitL1Reg() GLMResults {
 
+	checkstep := true
+	if strings.ToLower(glm.Fam.Name) == "gaussian" {
+		checkstep = false
+	}
+
 	rglm := &glml1reg{
 		GLM:       *glm,
 		l1wgt:     glm.L1wgt,
 		nobs:      glm.Data.Nobs(),
 		nvar:      glm.Data.Nvar(),
-		checkStep: true,
+		checkStep: checkstep,
 	}
 
 	params := statmodel.FitL1Reg(rglm)
