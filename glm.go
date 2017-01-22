@@ -1,6 +1,7 @@
 package goglm
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -46,6 +47,7 @@ type GLMResults struct {
 	scale float64
 }
 
+// Scale returns the estimated scale parameter.
 func (rslt *GLMResults) Scale() float64 {
 	return rslt.scale
 }
@@ -459,6 +461,42 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 	scale /= (ws - float64(nvar))
 
 	return scale
+}
+
+func (results *GLMResults) Summary() string {
+
+	glm := results.Model().(*GLM)
+
+	s := results.BaseResults.Summary()
+	tw := 80
+
+	var buf bytes.Buffer
+
+	buf.Write([]byte(strings.Repeat("-", tw)))
+	buf.Write([]byte("\n"))
+	buf.Write([]byte("                        Generalized Linear Model results\n"))
+	buf.Write([]byte(strings.Repeat("-", tw)))
+	buf.Write([]byte("\n"))
+
+	// Must have even length, add "" to end if needed.
+	top := []string{fmt.Sprintf("Family:   %s", glm.Fam.Name),
+		fmt.Sprintf("Link:     %s", glm.Link.Name),
+		fmt.Sprintf("Variance: %s", glm.Var.Name),
+		fmt.Sprintf("Num obs:  %d", glm.DataProps().Nobs),
+		fmt.Sprintf("Scale:    %f", results.scale),
+		"",
+	}
+
+	c := fmt.Sprintf("%%-%ds", tw/2)
+	for j, v := range top {
+		u := fmt.Sprintf(c, v)
+		buf.Write([]byte(u))
+		if j%2 == 1 {
+			buf.Write([]byte("\n"))
+		}
+	}
+
+	return buf.String() + s
 }
 
 // resize returns a float64 slice of length n, using the initial

@@ -31,31 +31,37 @@ func NewVariance(name string) *Variance {
 
 // Variance represents a GLM variance function.
 type Variance struct {
+	Name  string
 	Var   VecFunc
 	Deriv VecFunc
 }
 
 var binomVariance = Variance{
+	Name:  "Binomial",
 	Var:   binomVar,
 	Deriv: binomVarDeriv,
 }
 
 var identVariance = Variance{
+	Name:  "Identity",
 	Var:   identVar,
 	Deriv: identVarDeriv,
 }
 
 var constVariance = Variance{
+	Name:  "Constant",
 	Var:   constVar,
 	Deriv: constVarDeriv,
 }
 
 var squaredVariance = Variance{
+	Name:  "Squared",
 	Var:   squaredVar,
 	Deriv: squaredVarDeriv,
 }
 
 var cubedVariance = Variance{
+	Name:  "Cubed",
 	Var:   cubedVar,
 	Deriv: cubedVarDeriv,
 }
