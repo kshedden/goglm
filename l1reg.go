@@ -54,19 +54,26 @@ func (glm *glml1reg) CloneWithNewData(newdata statmodel.DataProvider) statmodel.
 	return newglm
 }
 
-// F1tL1Reg fits an L1-regularized GLM.  The objective function to be
+// f1tL1Reg fits an L1-regularized GLM.  The objective function to be
 // minimized is -L(params)/n + l1wgt*|params|, where L() is the
 // log-likelihood function calculated with the scale parameter set
 // equal to 1.
-func (glm *GLM) FitL1Reg(l1wgt float64, checkStep bool) []float64 {
+func (glm *GLM) fitL1Reg() GLMResults {
 
 	rglm := &glml1reg{
 		GLM:       *glm,
-		l1wgt:     l1wgt,
+		l1wgt:     glm.L1wgt,
 		nobs:      glm.Data.Nobs(),
 		nvar:      glm.Data.Nvar(),
-		checkStep: checkStep,
+		checkStep: true,
 	}
 
-	return statmodel.FitL1Reg(rglm)
+	params := statmodel.FitL1Reg(rglm)
+
+	results := GLMResults{
+		BaseResults: statmodel.NewBaseResults(glm, 0, params, nil),
+	}
+
+	return results
+
 }

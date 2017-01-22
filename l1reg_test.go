@@ -54,8 +54,9 @@ func TestEnet1(t *testing.T) {
 		},
 	} {
 		glm := NewGLM(ep.family, ep.data)
-		params := glm.FitL1Reg(ep.l1wgt, true)
-		if !vectorClose(params, ep.params, 1e-5) {
+		glm.L1wgt = ep.l1wgt
+		rslt := glm.Fit()
+		if !vectorClose(rslt.Params(), ep.params, 1e-5) {
 			t.Fail()
 		}
 	}

@@ -27,8 +27,12 @@ type GLM struct {
 	// Starting values, optional
 	Start []float64
 
-	// L2 (ridge) weights, optional.  Must fit using Gradient
-	// method if present.
+	// L1 (lasso) penalty weight.  FitMethod is ignored if
+	// non-zero.
+	L1wgt float64
+
+	// L2 (ridge) penalty weights, optional.  Must fit using
+	// Gradient method if present.
 	L2wgt []float64
 
 	// Additional information that is model-specific
@@ -359,6 +363,10 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 // object.  Methods of statmodel.BaseResults can be used to obtain
 // many attributes of the fitted model.
 func (glm *GLM) Fit() GLMResults {
+
+	if glm.L1wgt > 0 {
+		return glm.fitL1Reg()
+	}
 
 	nvar := glm.Data.Nvar()
 	maxiter := 20
