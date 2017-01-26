@@ -30,7 +30,7 @@ type GLM struct {
 
 	// L1 (lasso) penalty weight.  FitMethod is ignored if
 	// non-zero.
-	L1wgt float64
+	L1wgt []float64
 
 	// L2 (ridge) penalty weights, optional.  Must fit using
 	// Gradient method if present.
@@ -366,7 +366,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 // many attributes of the fitted model.
 func (glm *GLM) Fit() GLMResults {
 
-	if glm.L1wgt > 0 {
+	if glm.L1wgt != nil {
 		return glm.fitL1Reg()
 	}
 

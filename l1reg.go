@@ -12,7 +12,7 @@ type glml1reg struct {
 
 	nobs  int
 	nvar  int
-	l1wgt float64
+	l1wgt []float64
 
 	// If false, do not check if the update from the quadratic
 	// approximation improves the objective function.
@@ -40,7 +40,7 @@ func (glm *glml1reg) Hessian(params, hess []float64) {
 	}
 }
 
-func (glm *glml1reg) L1Wgt() float64 {
+func (glm *glml1reg) L1wgt() []float64 {
 	return glm.l1wgt
 }
 
