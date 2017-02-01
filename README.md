@@ -24,6 +24,8 @@ Supported features
 
 * Estimation for weighted datasets
 
+* Models can be specified using formulas
+
 * Regularized (ridge/LASSO) estimation
 
 * Offsets
