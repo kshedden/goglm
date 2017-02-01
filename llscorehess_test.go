@@ -9,7 +9,7 @@ import (
 type ptlsh struct {
 	family  *Family
 	link    *Link
-	data    statmodel.DataProvider
+	data    statmodel.RegDataProvider
 	params  []float64
 	ll      float64
 	score   []float64

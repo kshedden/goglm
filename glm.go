@@ -54,7 +54,7 @@ func (rslt *GLMResults) Scale() float64 {
 
 // NewGLM creates a new GLM object for the given family, using its
 // default link and variance functions.
-func NewGLM(fam *Family, data statmodel.DataProvider) *GLM {
+func NewGLM(fam *Family, data statmodel.RegDataProvider) *GLM {
 
 	var link *Link
 	var vaf *Variance
@@ -105,7 +105,7 @@ type NegBinomAux struct {
 // type, using the given parameter alpha to determine the
 // mean/variance relationship.  The variance corresponding to mean m
 // is m + alpha*m^2.
-func NewNegBinomGLM(alpha float64, data statmodel.DataProvider) *GLM {
+func NewNegBinomGLM(alpha float64, data statmodel.RegDataProvider) *GLM {
 
 	fam := NewNegBinomFamily(alpha, NewLink("log"))
 	vaf := NewNegBinomVariance(alpha)
@@ -380,6 +380,10 @@ func (glm *GLM) Fit() GLMResults {
 		start = make([]float64, nvar)
 	}
 
+	if glm.L2wgt != nil {
+		glm.FitMethod = "gradient"
+	}
+
 	var params []float64
 
 	if strings.ToLower(glm.FitMethod) == "gradient" {
@@ -393,10 +397,11 @@ func (glm *GLM) Fit() GLMResults {
 	vcov := statmodel.GetVcov(glm, params)
 	floats.Scale(scale, vcov)
 	ll := glm.LogLike(params, scale)
+	xnames := glm.IndRegModel.Data.XNames()
 
 	results := GLMResults{
 		BaseResults: statmodel.NewBaseResults(glm,
-			ll, params, vcov),
+			ll, params, xnames, vcov),
 		scale: scale,
 	}
 

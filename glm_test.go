@@ -26,7 +26,7 @@ func vectorClose(x, y []float64, eps float64) bool {
 	return true
 }
 
-func data1(wgt bool) statmodel.DataProvider {
+func data1(wgt bool) statmodel.RegDataProvider {
 	y := []float64{0, 1, 3, 2, 1, 1, 0}
 	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
 	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
@@ -35,10 +35,10 @@ func data1(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{1, 2, 2, 3, 1, 3, 2}
 	}
-	return statmodel.NewDataProviderFromArrays(y, x, w, nil, 3)
+	return statmodel.NewRegDataProvContigArrays(y, x, w, nil, 3)
 }
 
-func data2(wgt bool) statmodel.DataProvider {
+func data2(wgt bool) statmodel.RegDataProvider {
 	y := []float64{0, 0, 1, 0, 1, 0, 0}
 	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
 	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
@@ -48,10 +48,10 @@ func data2(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{2, 1, 3, 3, 4, 2, 3}
 	}
-	return statmodel.NewDataProviderFromArrays(y, x, w, nil, 3)
+	return statmodel.NewRegDataProvContigArrays(y, x, w, nil, 3)
 }
 
-func data3(wgt bool) statmodel.DataProvider {
+func data3(wgt bool) statmodel.RegDataProvider {
 	y := []float64{1, 1, 1, 0, 0, 0, 0}
 	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
 	x2 := []float64{0, 1, 0, 0, -1, 0, 1}
@@ -60,10 +60,10 @@ func data3(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{3, 3, 2, 3, 1, 3, 2}
 	}
-	return statmodel.NewDataProviderFromArrays(y, x, w, nil, 3)
+	return statmodel.NewRegDataProvContigArrays(y, x, w, nil, 3)
 }
 
-func data4(wgt bool) statmodel.DataProvider {
+func data4(wgt bool) statmodel.RegDataProvider {
 	y := []float64{3, 1, 5, 4, 2, 3, 6}
 	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
 	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
@@ -73,10 +73,10 @@ func data4(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{3, 3, 2, 3, 1, 3, 2}
 	}
-	return statmodel.NewDataProviderFromArrays(y, x, w, nil, 3)
+	return statmodel.NewRegDataProvContigArrays(y, x, w, nil, 3)
 }
 
-func data5(wgt bool) statmodel.DataProvider {
+func data5(wgt bool) statmodel.RegDataProvider {
 	y := []float64{0, 1, 3, 2, 1, 1, 0}
 	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
 	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
@@ -86,12 +86,12 @@ func data5(wgt bool) statmodel.DataProvider {
 	if wgt {
 		w = []float64{1, 2, 2, 3, 1, 3, 2}
 	}
-	return statmodel.NewDataProviderFromArrays(y, x, w, off, 3)
+	return statmodel.NewRegDataProvContigArrays(y, x, w, off, 3)
 }
 
 type tdgl struct {
 	family     *Family
-	data       statmodel.DataProvider
+	data       statmodel.RegDataProvider
 	start      []float64
 	params     []float64
 	stderr     []float64

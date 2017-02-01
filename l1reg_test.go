@@ -8,7 +8,7 @@ import (
 
 type endx struct {
 	family *Family
-	data   statmodel.DataProvider
+	data   statmodel.RegDataProvider
 	params []float64
 	l1wgt  []float64
 }

@@ -48,11 +48,11 @@ func (glm *glml1reg) CheckStep() bool {
 	return glm.checkStep
 }
 
-func (glm *glml1reg) Data() statmodel.DataProvider {
+func (glm *glml1reg) Data() statmodel.RegDataProvider {
 	return glm.GLM.Data
 }
 
-func (glm *glml1reg) CloneWithNewData(newdata statmodel.DataProvider) statmodel.L1RegFitter {
+func (glm *glml1reg) CloneWithNewData(newdata statmodel.RegDataProvider) statmodel.L1RegFitter {
 	newglm := glm
 	newglm.GLM.Data = newdata
 	return newglm
@@ -78,9 +78,13 @@ func (glm *GLM) fitL1Reg() GLMResults {
 	}
 
 	params := statmodel.FitL1Reg(rglm)
+	xnames := glm.IndRegModel.Data.XNames()
+
+	scale := glm.EstimateScale(params)
 
 	results := GLMResults{
-		BaseResults: statmodel.NewBaseResults(glm, 0, params, nil),
+		BaseResults: statmodel.NewBaseResults(glm, 0, params, xnames, nil),
+		scale:       scale,
 	}
 
 	return results
