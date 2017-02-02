@@ -63,7 +63,8 @@ func model1() {
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
-	fpm := statmodel.FilterMissing(fp)
+	fpm := statmodel.Collect(fp)
+	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(fam, fpm)
@@ -80,7 +81,8 @@ func model2() {
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
-	fpm := statmodel.FilterMissing(fp)
+	fpm := statmodel.Collect(fp)
+	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(fam, fpm)
@@ -97,7 +99,8 @@ func model3() {
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
-	fpm := statmodel.FilterMissing(fp)
+	fpm := statmodel.Collect(fp)
+	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(fam, fpm)
@@ -113,7 +116,8 @@ func model4() {
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
-	fpm := statmodel.FilterMissing(fp)
+	fpm := statmodel.Collect(fp)
+	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(fam, fpm)
