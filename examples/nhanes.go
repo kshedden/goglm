@@ -27,6 +27,7 @@ package main
 import (
 	"compress/gzip"
 	"encoding/csv"
+	"fmt"
 	"os"
 
 	"github.com/kshedden/goglm"
@@ -62,7 +63,7 @@ func model1() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
+	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
 	fpm := statmodel.Collect(fp)
 	fpm.DropNA()
 
@@ -80,7 +81,7 @@ func model2() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
+	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
 	fpm := statmodel.Collect(fp)
 	fpm.DropNA()
 
@@ -98,7 +99,7 @@ func model3() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
+	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
 	fpm := statmodel.Collect(fp)
 	fpm.DropNA()
 
@@ -115,7 +116,7 @@ func model4() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, "BPXSY1", "", "")
+	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
 	fpm := statmodel.Collect(fp)
 	fpm.DropNA()
 
@@ -132,10 +133,39 @@ func model4() {
 	print(rslt.Summary())
 }
 
+func model5() {
+
+	dp := getData()
+
+	fml := "1 + RIAGENDR + sqrt(RIDAGEYR) + RIDRETH1"
+	reflev := map[string]string{"RIDRETH1": "5.0"}
+
+	funcs := make(map[string]statmodel.Func)
+	funcs["sqrt"] = func(na string, x []float64) *statmodel.ColSet {
+		y := make([]float64, len(x))
+		for i, v := range x {
+			y[i] = v * v
+		}
+		return &statmodel.ColSet{Names: []string{na}, Data: [][]float64{y}}
+	}
+
+	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, funcs, "BPXSY1", "", "")
+	fmt.Printf("%v\n", fp.Next())
+	fpm := statmodel.Collect(fp)
+	fpm.DropNA()
+
+	fam := goglm.NewFamily("gaussian")
+	glm := goglm.NewGLM(fam, fpm)
+
+	rslt := glm.Fit()
+	print(rslt.Summary())
+}
+
 func main() {
 
 	model1()
 	model2()
 	model3()
 	model4()
+	model5()
 }

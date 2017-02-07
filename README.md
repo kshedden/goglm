@@ -12,7 +12,8 @@ where `NewFamily` returns a GLM family (e.g. `Binomial`), and `data`
 is a "DataProvider" as defined in the
 [statmodel](http://github.com/kshedden/statmodel) package.  The
 DataProvider is used to feed data to the GLM in chunks using a
-column-oriented storage layout.
+column-oriented storage layout.  See the examples directory for more
+examples.
 
 
 Supported features
