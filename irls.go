@@ -1,6 +1,7 @@
 package goglm
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -122,6 +123,9 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 		xtyv := mat64.NewVector(nvar, xty)
 		err := nparam.SolveVec(xtxm, xtyv)
 		if err != nil {
+			for j := 0; j < nvar; j++ {
+				fmt.Printf("%8d %12.4f %12.4f\n", j, xty[j], xtx[j*nvar+j])
+			}
 			panic(err)
 		}
 		params = nparam.RawVector().Data
