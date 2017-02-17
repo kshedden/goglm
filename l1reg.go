@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/dataprovider"
 )
 
 // Adapter that satisfies statmodel.L1RegFitter
@@ -48,11 +49,11 @@ func (glm *glml1reg) CheckStep() bool {
 	return glm.checkStep
 }
 
-func (glm *glml1reg) Data() statmodel.RegDataProvider {
+func (glm *glml1reg) Data() dataprovider.Reg {
 	return glm.GLM.Data
 }
 
-func (glm *glml1reg) CloneWithNewData(newdata statmodel.RegDataProvider) statmodel.L1RegFitter {
+func (glm *glml1reg) CloneWithNewData(newdata dataprovider.Reg) statmodel.L1RegFitter {
 	newglm := glm
 	newglm.GLM.Data = newdata
 	return newglm

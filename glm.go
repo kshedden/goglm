@@ -7,6 +7,7 @@ import (
 
 	"github.com/gonum/floats"
 	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/dataprovider"
 )
 
 // GLM describes a generalized linear model.
@@ -54,7 +55,7 @@ func (rslt *GLMResults) Scale() float64 {
 
 // NewGLM creates a new GLM object for the given family, using its
 // default link and variance functions.
-func NewGLM(fam *Family, data statmodel.RegDataProvider) *GLM {
+func NewGLM(fam *Family, data dataprovider.Reg) *GLM {
 
 	var link *Link
 	var vaf *Variance
@@ -105,7 +106,7 @@ type NegBinomAux struct {
 // type, using the given parameter alpha to determine the
 // mean/variance relationship.  The variance corresponding to mean m
 // is m + alpha*m^2.
-func NewNegBinomGLM(alpha float64, data statmodel.RegDataProvider) *GLM {
+func NewNegBinomGLM(alpha float64, data dataprovider.Reg) *GLM {
 
 	fam := NewNegBinomFamily(alpha, NewLink("log"))
 	vaf := NewNegBinomVariance(alpha)

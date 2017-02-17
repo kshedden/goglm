@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/dataprovider"
 )
 
 type ptlsh struct {
 	family  *Family
 	link    *Link
-	data    statmodel.RegDataProvider
+	data    dataprovider.Reg
 	params  []float64
 	ll      float64
 	score   []float64

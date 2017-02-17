@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/dataprovider"
 )
 
 func scalarClose(x, y, eps float64) bool {
@@ -26,72 +26,118 @@ func vectorClose(x, y []float64, eps float64) bool {
 	return true
 }
 
-func data1(wgt bool) statmodel.RegDataProvider {
-	y := [][]float64{[]float64{0, 1, 3, 2, 1, 1, 0}}
-	x1 := [][]float64{[]float64{1, 1, 1, 1, 1, 1, 1}}
-	x2 := [][]float64{[]float64{4, 1, -1, 3, 5, -5, 3}}
+func data1(wgt bool) dataprovider.Reg {
+	y := [][]float64{
+		[]float64{0, 1, 3, 2, 1, 1, 0},
+	}
+	x1 := [][]float64{
+		[]float64{1, 1, 1, 1, 1, 1, 1},
+	}
+	x2 := [][]float64{
+		[]float64{4, 1, -1, 3, 5, -5, 3},
+	}
 	x := [][][]float64{x1, x2}
 	var w [][]float64
 	if wgt {
-		w = [][]float64{[]float64{1, 2, 2, 3, 1, 3, 2}}
+		w = [][]float64{
+			[]float64{1, 2, 2, 3, 1, 3, 2},
+		}
 	}
-	return statmodel.NewRegDataProvArrays(y, x, w, nil, nil)
+	return dataprovider.NewRegFromArrays(y, x, w, nil, nil)
 }
 
-func data2(wgt bool) statmodel.RegDataProvider {
-	y := [][]float64{[]float64{0, 0, 1, 0, 1, 0, 0}}
-	x1 := [][]float64{[]float64{1, 1, 1, 1, 1, 1, 1}}
-	x2 := [][]float64{[]float64{4, 1, -1, 3, 5, -5, 3}}
-	x3 := [][]float64{[]float64{1, -1, 1, 1, 2, 5, -1}}
+func data2(wgt bool) dataprovider.Reg {
+	y := [][]float64{
+		[]float64{0, 0, 1, 0, 1, 0, 0},
+	}
+	x1 := [][]float64{
+		[]float64{1, 1, 1, 1, 1, 1, 1},
+	}
+	x2 := [][]float64{
+		[]float64{4, 1, -1, 3, 5, -5, 3},
+	}
+	x3 := [][]float64{
+		[]float64{1, -1, 1, 1, 2, 5, -1},
+	}
 	x := [][][]float64{x1, x2, x3}
 	var w [][]float64
 	if wgt {
-		w = [][]float64{[]float64{2, 1, 3, 3, 4, 2, 3}}
+		w = [][]float64{
+			[]float64{2, 1, 3, 3, 4, 2, 3},
+		}
 	}
-	return statmodel.NewRegDataProvArrays(y, x, w, nil, nil)
+	return dataprovider.NewRegFromArrays(y, x, w, nil, nil)
 }
 
-func data3(wgt bool) statmodel.RegDataProvider {
-	y := [][]float64{[]float64{1, 1, 1, 0, 0, 0, 0}}
-	x1 := [][]float64{[]float64{1, 1, 1, 1, 1, 1, 1}}
-	x2 := [][]float64{[]float64{0, 1, 0, 0, -1, 0, 1}}
+func data3(wgt bool) dataprovider.Reg {
+	y := [][]float64{
+		[]float64{1, 1, 1, 0, 0, 0, 0},
+	}
+	x1 := [][]float64{
+		[]float64{1, 1, 1, 1, 1, 1, 1},
+	}
+	x2 := [][]float64{
+		[]float64{0, 1, 0, 0, -1, 0, 1},
+	}
 	x := [][][]float64{x1, x2}
 	var w [][]float64
 	if wgt {
-		w = [][]float64{[]float64{3, 3, 2, 3, 1, 3, 2}}
+		w = [][]float64{
+			[]float64{3, 3, 2, 3, 1, 3, 2},
+		}
 	}
-	return statmodel.NewRegDataProvArrays(y, x, w, nil, nil)
+	return dataprovider.NewRegFromArrays(y, x, w, nil, nil)
 }
 
-func data4(wgt bool) statmodel.RegDataProvider {
-	y := [][]float64{[]float64{3, 1, 5, 4, 2, 3, 6}}
-	x1 := [][]float64{[]float64{1, 1, 1, 1, 1, 1, 1}}
-	x2 := [][]float64{[]float64{4, 1, -1, 3, 5, -5, 3}}
-	x3 := [][]float64{[]float64{1, -1, 1, 1, 2, 5, -1}}
+func data4(wgt bool) dataprovider.Reg {
+	y := [][]float64{
+		[]float64{3, 1, 5, 4, 2, 3, 6},
+	}
+	x1 := [][]float64{
+		[]float64{1, 1, 1, 1, 1, 1, 1},
+	}
+	x2 := [][]float64{
+		[]float64{4, 1, -1, 3, 5, -5, 3},
+	}
+	x3 := [][]float64{
+		[]float64{1, -1, 1, 1, 2, 5, -1},
+	}
 	x := [][][]float64{x1, x2, x3}
 	var w [][]float64
 	if wgt {
-		w = [][]float64{[]float64{3, 3, 2, 3, 1, 3, 2}}
+		w = [][]float64{
+			[]float64{3, 3, 2, 3, 1, 3, 2},
+		}
 	}
-	return statmodel.NewRegDataProvArrays(y, x, w, nil, nil)
+	return dataprovider.NewRegFromArrays(y, x, w, nil, nil)
 }
 
-func data5(wgt bool) statmodel.RegDataProvider {
-	y := [][]float64{[]float64{0, 1, 3, 2, 1, 1, 0}}
-	x1 := [][]float64{[]float64{1, 1, 1, 1, 1, 1, 1}}
-	x2 := [][]float64{[]float64{4, 1, -1, 3, 5, -5, 3}}
+func data5(wgt bool) dataprovider.Reg {
+	y := [][]float64{
+		[]float64{0, 1, 3, 2, 1, 1, 0},
+	}
+	x1 := [][]float64{
+		[]float64{1, 1, 1, 1, 1, 1, 1},
+	}
+	x2 := [][]float64{
+		[]float64{4, 1, -1, 3, 5, -5, 3},
+	}
 	x := [][][]float64{x1, x2}
-	off := [][]float64{[]float64{0, 0, 1, 1, 0, 0, 0}}
+	off := [][]float64{
+		[]float64{0, 0, 1, 1, 0, 0, 0},
+	}
 	var w [][]float64
 	if wgt {
-		w = [][]float64{[]float64{1, 2, 2, 3, 1, 3, 2}}
+		w = [][]float64{
+			[]float64{1, 2, 2, 3, 1, 3, 2},
+		}
 	}
-	return statmodel.NewRegDataProvArrays(y, x, w, off, nil)
+	return dataprovider.NewRegFromArrays(y, x, w, off, nil)
 }
 
 type tdgl struct {
 	family     *Family
-	data       statmodel.RegDataProvider
+	data       dataprovider.Reg
 	start      []float64
 	params     []float64
 	stderr     []float64
