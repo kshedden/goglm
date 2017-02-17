@@ -8,12 +8,12 @@ result := glm.Fit()
 print(result.Summary())
 ```
 
-where `NewFamily` returns a GLM family (e.g. `Binomial`), and `data`
-is a "DataProvider" as defined in the
-[statmodel](http://github.com/kshedden/statmodel) package.  The
-DataProvider is used to feed data to the GLM in chunks using a
-column-oriented storage layout.  See the examples directory for more
-examples.
+`NewFamily` returns a GLM family (e.g. `Binomial`), and `data` is a
+"DataProvider" as defined in the
+[statmodel/dataprovider](http://github.com/kshedden/statmodel/dataprovider)
+package.  The DataProvider is used to feed data to the GLM in chunks
+using a column-oriented storage layout.  A more extensive illustration
+can be found in the "examples" directory.
 
 
 Supported features
