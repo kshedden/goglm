@@ -31,10 +31,11 @@ import (
 	"os"
 
 	"github.com/kshedden/goglm"
-	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/dataprovider"
+	"github.com/kshedden/statmodel/formula"
 )
 
-func getData() statmodel.RawDataProvider {
+func getData() dataprovider.Data {
 
 	fid, err := os.Open("nhanes.csv.gz")
 	if err != nil {
@@ -52,7 +53,7 @@ func getData() statmodel.RawDataProvider {
 	keepstring := []string{"RIDRETH1"}
 
 	chunksize := 100
-	return statmodel.RawDPFromCSV(rdr, keepfloat, keepstring, chunksize)
+	return dataprovider.RawDPFromCSV(rdr, keepfloat, keepstring, chunksize)
 }
 
 func model1() {
@@ -63,8 +64,8 @@ func model1() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
-	fpm := statmodel.Collect(fp)
+	fp := formula.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
+	fpm := dataprovider.Collect(fp)
 	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
@@ -81,8 +82,8 @@ func model2() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
-	fpm := statmodel.Collect(fp)
+	fp := formula.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
+	fpm := dataprovider.Collect(fp)
 	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
@@ -99,8 +100,8 @@ func model3() {
 
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
-	fpm := statmodel.Collect(fp)
+	fp := formula.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
+	fpm := dataprovider.Collect(fp)
 	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
@@ -116,8 +117,8 @@ func model4() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
-	fpm := statmodel.Collect(fp)
+	fp := formula.NewRegFormulaParser(fml, dp, reflev, nil, nil, "BPXSY1", "", "")
+	fpm := dataprovider.Collect(fp)
 	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
@@ -140,18 +141,18 @@ func model5() {
 	fml := "1 + RIAGENDR + sqrt(RIDAGEYR) + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	funcs := make(map[string]statmodel.Func)
-	funcs["sqrt"] = func(na string, x []float64) *statmodel.ColSet {
+	funcs := make(map[string]formula.Func)
+	funcs["sqrt"] = func(na string, x []float64) *formula.ColSet {
 		y := make([]float64, len(x))
 		for i, v := range x {
 			y[i] = v * v
 		}
-		return &statmodel.ColSet{Names: []string{na}, Data: [][]float64{y}}
+		return &formula.ColSet{Names: []string{na}, Data: [][]float64{y}}
 	}
 
-	fp := statmodel.NewRegFormulaParser(fml, dp, reflev, nil, funcs, "BPXSY1", "", "")
+	fp := formula.NewRegFormulaParser(fml, dp, reflev, nil, funcs, "BPXSY1", "", "")
 	fmt.Printf("%v\n", fp.Next())
-	fpm := statmodel.Collect(fp)
+	fpm := dataprovider.Collect(fp)
 	fpm.DropNA()
 
 	fam := goglm.NewFamily("gaussian")
