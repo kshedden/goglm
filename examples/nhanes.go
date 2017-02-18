@@ -62,7 +62,7 @@ func model1() {
 	fml := "1 + RIAGENDR + RIDAGEYR"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := formula.NewFormulaParser(fml, dp, reflev, nil, nil)
+	fp := formula.New(fml, dp, reflev, nil, nil)
 	fx := fp.ParseAll([]string{"BPXSY1"})
 	fx.DropNA()
 	xn := []string{"icept", "RIAGENDR", "RIDAGEYR"}
@@ -81,7 +81,7 @@ func model2() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := formula.NewFormulaParser(fml, dp, reflev, nil, nil)
+	fp := formula.New(fml, dp, reflev, nil, nil)
 	fx := fp.ParseAll([]string{"BPXSY1"})
 	fx.DropNA()
 	fr := dataprovider.NewReg(fx, "BPXSY1", nil, "", "")
@@ -99,7 +99,7 @@ func model3() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1 + RIAGENDR * RIDAGEYR"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := formula.NewFormulaParser(fml, dp, reflev, nil, nil)
+	fp := formula.New(fml, dp, reflev, nil, nil)
 	fx := fp.ParseAll([]string{"BPXSY1"})
 	fx.DropNA()
 	fr := dataprovider.NewReg(fx, "BPXSY1", nil, "", "")
@@ -117,7 +117,7 @@ func model4() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	fp := formula.NewFormulaParser(fml, dp, reflev, nil, nil)
+	fp := formula.New(fml, dp, reflev, nil, nil)
 	fx := fp.ParseAll([]string{"BPXSY1"})
 	fx.DropNA()
 	fr := dataprovider.NewReg(fx, "BPXSY1", nil, "", "")
@@ -154,7 +154,7 @@ func model5() {
 		}
 	}
 
-	fp := formula.NewFormulaParser(fml, dp, reflev, nil, funcs)
+	fp := formula.New(fml, dp, reflev, nil, funcs)
 	fx := fp.ParseAll([]string{"BPXSY1"})
 	fx.DropNA()
 	fr := dataprovider.NewReg(fx, "BPXSY1", nil, "", "")
