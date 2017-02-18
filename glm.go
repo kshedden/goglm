@@ -41,6 +41,10 @@ type GLM struct {
 	Aux interface{}
 }
 
+func (glm *GLM) DataSet() dataprovider.Reg {
+	return glm.Data
+}
+
 // GLMResults describes the results of a fitted generalized linear model.
 type GLMResults struct {
 	statmodel.BaseResults
@@ -148,7 +152,7 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 	var linpred []float64
 	var mn []float64
 
-	nvar := glm.Data.Nvar()
+	nvar := glm.Data.NCov()
 	glm.Data.Reset()
 
 	for glm.Data.Next() {
@@ -205,7 +209,7 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 	var fac []float64
 	var facw []float64
 
-	nvar := glm.Data.Nvar()
+	nvar := glm.Data.NCov()
 	glm.Data.Reset()
 	zero(score)
 
@@ -276,7 +280,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 	var fac []float64
 	var sfac []float64
 
-	nvar := glm.Data.Nvar()
+	nvar := glm.Data.NCov()
 	glm.Data.Reset()
 	zero(hess)
 
@@ -371,7 +375,7 @@ func (glm *GLM) Fit() GLMResults {
 		return glm.fitL1Reg()
 	}
 
-	nvar := glm.Data.Nvar()
+	nvar := glm.Data.NCov()
 	maxiter := 20
 
 	var start []float64
@@ -418,7 +422,7 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 		return 1
 	}
 
-	nvar := glm.Data.Nvar()
+	nvar := glm.Data.NCov()
 	var linpred []float64
 	var mn []float64
 	var va []float64
@@ -488,7 +492,7 @@ func (results *GLMResults) Summary() string {
 	top := []string{fmt.Sprintf("Family:   %s", glm.Fam.Name),
 		fmt.Sprintf("Link:     %s", glm.Link.Name),
 		fmt.Sprintf("Variance: %s", glm.Var.Name),
-		fmt.Sprintf("Num obs:  %d", glm.DataProps().Nobs),
+		fmt.Sprintf("Num obs:  %d", glm.DataSet().Nobs),
 		fmt.Sprintf("Scale:    %f", results.scale),
 		"",
 	}
