@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/kshedden/statmodel/dataprovider"
+	"github.com/kshedden/dstream/dstream"
 )
 
 func scalarClose(x, y, eps float64) bool {
@@ -26,7 +26,7 @@ func vectorClose(x, y []float64, eps float64) bool {
 	return true
 }
 
-func data1(wgt bool) dataprovider.Reg {
+func data1(wgt bool) dstream.Reg {
 	y := []interface{}{
 		[]float64{0, 1, 3, 2, 1, 1, 0},
 	}
@@ -42,17 +42,17 @@ func data1(wgt bool) dataprovider.Reg {
 		}
 		da := [][]interface{}{y, x1, x2, w}
 		na := []string{"y", "x1", "x2", "w"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
 	} else {
 		da := [][]interface{}{y, x1, x2}
 		na := []string{"y", "x1", "x2"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
 	}
 }
 
-func data2(wgt bool) dataprovider.Reg {
+func data2(wgt bool) dstream.Reg {
 	y := []interface{}{
 		[]float64{0, 0, 1, 0, 1, 0, 0},
 	}
@@ -71,17 +71,17 @@ func data2(wgt bool) dataprovider.Reg {
 		}
 		da := [][]interface{}{y, x1, x2, x3, w}
 		na := []string{"y", "x1", "x2", "x3", "w"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
 	} else {
 		da := [][]interface{}{y, x1, x2, x3}
 		na := []string{"y", "x1", "x2", "x3"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
 	}
 }
 
-func data3(wgt bool) dataprovider.Reg {
+func data3(wgt bool) dstream.Reg {
 	y := []interface{}{
 		[]float64{1, 1, 1, 0, 0, 0, 0},
 	}
@@ -98,17 +98,17 @@ func data3(wgt bool) dataprovider.Reg {
 		}
 		da := [][]interface{}{y, x1, x2, w}
 		na := []string{"y", "x1", "x2", "w"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
 	} else {
 		da := [][]interface{}{y, x1, x2}
 		na := []string{"y", "x1", "x2"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
 	}
 }
 
-func data4(wgt bool) dataprovider.Reg {
+func data4(wgt bool) dstream.Reg {
 	y := []interface{}{
 		[]float64{3, 1, 5, 4, 2, 3, 6},
 	}
@@ -128,17 +128,17 @@ func data4(wgt bool) dataprovider.Reg {
 		}
 		da := [][]interface{}{y, x1, x2, x3, w}
 		na := []string{"y", "x1", "x2", "x3", "w"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
 	} else {
 		da := [][]interface{}{y, x1, x2, x3}
 		na := []string{"y", "x1", "x2", "x3"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
 	}
 }
 
-func data5(wgt bool) dataprovider.Reg {
+func data5(wgt bool) dstream.Reg {
 	y := []interface{}{
 		[]float64{0, 1, 3, 2, 1, 1, 0},
 	}
@@ -158,19 +158,19 @@ func data5(wgt bool) dataprovider.Reg {
 		}
 		da := [][]interface{}{y, x1, x2, off, w}
 		na := []string{"y", "x1", "x2", "off", "w"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "w", "off")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "off")
 	} else {
 		da := [][]interface{}{y, x1, x2, off}
 		na := []string{"y", "x1", "x2", "off"}
-		dx := dataprovider.NewFromArrays(da, na)
-		return dataprovider.NewReg(dx, "y", []string{"x1", "x2"}, "", "off")
+		dx := dstream.NewFromArrays(da, na)
+		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "off")
 	}
 }
 
 type tdgl struct {
 	family     *Family
-	data       dataprovider.Reg
+	data       dstream.Reg
 	start      []float64
 	params     []float64
 	stderr     []float64

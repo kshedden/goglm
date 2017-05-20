@@ -3,14 +3,14 @@ package goglm
 import (
 	"testing"
 
+	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/statmodel"
-	"github.com/kshedden/statmodel/dataprovider"
 )
 
 type ptlsh struct {
 	family  *Family
 	link    *Link
-	data    dataprovider.Reg
+	data    dstream.Reg
 	params  []float64
 	ll      float64
 	score   []float64

@@ -3,8 +3,8 @@ package goglm
 import (
 	"strings"
 
+	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/statmodel"
-	"github.com/kshedden/statmodel/dataprovider"
 )
 
 // Adapter that satisfies statmodel.L1RegFitter
@@ -49,11 +49,11 @@ func (glm *glml1reg) CheckStep() bool {
 	return glm.checkStep
 }
 
-func (glm *glml1reg) Data() dataprovider.Reg {
+func (glm *glml1reg) Data() dstream.Reg {
 	return glm.GLM.Data
 }
 
-func (glm *glml1reg) CloneWithNewData(newdata dataprovider.Reg) statmodel.L1RegFitter {
+func (glm *glml1reg) CloneWithNewData(newdata dstream.Reg) statmodel.L1RegFitter {
 	newglm := glm
 	newglm.GLM.Data = newdata
 	return newglm

@@ -3,12 +3,12 @@ package goglm
 import (
 	"testing"
 
-	"github.com/kshedden/statmodel/dataprovider"
+	"github.com/kshedden/dstream/dstream"
 )
 
 type endx struct {
 	family *Family
-	data   dataprovider.Reg
+	data   dstream.Reg
 	params []float64
 	l1wgt  []float64
 }
