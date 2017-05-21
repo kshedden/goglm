@@ -143,7 +143,7 @@ func TestLLScoreHess(t *testing.T) {
 			glm.SetLink(ps.link)
 		}
 
-		m := ps.data.NCov()
+		m := ps.data.NumCov()
 		score := make([]float64, m)
 		hess := make([]float64, m*m)
 

@@ -21,7 +21,7 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 	var adjy []float64
 	var nparam mat64.Vector
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 
 	xty := make([]float64, nvar)
 	xtx := make([]float64, nvar*nvar)

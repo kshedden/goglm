@@ -73,8 +73,8 @@ func (glm *GLM) fitL1Reg() GLMResults {
 	rglm := &glml1reg{
 		GLM:       *glm,
 		l1wgt:     glm.L1wgt,
-		nobs:      glm.Data.Nobs(),
-		nvar:      glm.Data.NCov(),
+		nobs:      glm.Data.NumObs(),
+		nvar:      glm.Data.NumCov(),
 		checkStep: checkstep,
 	}
 

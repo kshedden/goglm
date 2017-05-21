@@ -152,7 +152,7 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 	var linpred []float64
 	var mn []float64
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 	glm.Data.Reset()
 
 	for glm.Data.Next() {
@@ -183,7 +183,7 @@ func (glm *GLM) LogLike(params []float64, scale float64) float64 {
 
 	// Account for the L2 penalty
 	if glm.L2wgt != nil {
-		nobs := float64(glm.Data.Nobs())
+		nobs := float64(glm.Data.NumObs())
 		for j, v := range glm.L2wgt {
 			loglike -= nobs * v * params[j] * params[j] / 2
 		}
@@ -209,7 +209,7 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 	var fac []float64
 	var facw []float64
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 	glm.Data.Reset()
 	zero(score)
 
@@ -258,7 +258,7 @@ func (glm *GLM) Score(params []float64, scale float64, score []float64) {
 
 	// Account for the L2 penalty
 	if glm.L2wgt != nil {
-		nobs := float64(glm.Data.Nobs())
+		nobs := float64(glm.Data.NumObs())
 		for j, v := range glm.L2wgt {
 			score[j] -= nobs * v * params[j]
 		}
@@ -280,7 +280,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 	var fac []float64
 	var sfac []float64
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 	glm.Data.Reset()
 	zero(hess)
 
@@ -359,7 +359,7 @@ func (glm *GLM) Hessian(params []float64, scale float64, ht statmodel.HessType, 
 
 	// Account for the L2 penalty
 	if glm.L2wgt != nil {
-		nobs := float64(glm.Data.Nobs())
+		nobs := float64(glm.Data.NumObs())
 		for j, v := range glm.L2wgt {
 			hess[j*nvar+j] -= nobs * v
 		}
@@ -375,7 +375,7 @@ func (glm *GLM) Fit() GLMResults {
 		return glm.fitL1Reg()
 	}
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 	maxiter := 20
 
 	var start []float64
@@ -422,7 +422,7 @@ func (glm *GLM) EstimateScale(params []float64) float64 {
 		return 1
 	}
 
-	nvar := glm.Data.NCov()
+	nvar := glm.Data.NumCov()
 	var linpred []float64
 	var mn []float64
 	var va []float64
@@ -492,7 +492,7 @@ func (results *GLMResults) Summary() string {
 	top := []string{fmt.Sprintf("Family:   %s", glm.Fam.Name),
 		fmt.Sprintf("Link:     %s", glm.Link.Name),
 		fmt.Sprintf("Variance: %s", glm.Var.Name),
-		fmt.Sprintf("Num obs:  %d", glm.DataSet().Nobs),
+		fmt.Sprintf("Num obs:  %d", glm.DataSet().NumObs()),
 		fmt.Sprintf("Scale:    %f", results.scale),
 		"",
 	}
