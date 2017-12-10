@@ -1,5 +1,6 @@
 package goglm
 
+/*
 import (
 	"strings"
 
@@ -22,11 +23,11 @@ type glml1reg struct {
 
 func (glm *glml1reg) LogLike(params []float64) float64 {
 	nobs := float64(glm.nobs)
-	return -glm.GLM.LogLike(params, 1) / nobs
+	return -glm.GLM.LogLike(&GLMParams{params, 1}) / nobs
 }
 
 func (glm *glml1reg) Score(params, score []float64) {
-	glm.GLM.Score(params, 1, score)
+	glm.GLM.Score(&GLMParams{params, 1}, score)
 	nobs := float64(glm.nobs)
 	for j, _ := range params {
 		score[j] = -score[j] / nobs
@@ -34,7 +35,7 @@ func (glm *glml1reg) Score(params, score []float64) {
 }
 
 func (glm *glml1reg) Hessian(params, hess []float64) {
-	glm.GLM.Hessian(params, 1, statmodel.ExpHess, hess)
+	glm.GLM.Hessian(&GLMParams{params, 1}, statmodel.ExpHess, hess)
 	nobs := float64(glm.nobs)
 	for j, _ := range hess {
 		hess[j] = -hess[j] / nobs
@@ -49,7 +50,7 @@ func (glm *glml1reg) CheckStep() bool {
 	return glm.checkStep
 }
 
-func (glm *glml1reg) Data() dstream.Reg {
+func (glm *glml1reg) Data() dstream.Dstream {
 	return glm.GLM.Data
 }
 
@@ -66,7 +67,7 @@ func (glm *glml1reg) CloneWithNewData(newdata dstream.Reg) statmodel.L1RegFitter
 func (glm *GLM) fitL1Reg() GLMResults {
 
 	checkstep := true
-	if strings.ToLower(glm.Fam.Name) == "gaussian" {
+	if strings.ToLower(glm.fam.Name) == "gaussian" {
 		checkstep = false
 	}
 
@@ -74,12 +75,17 @@ func (glm *GLM) fitL1Reg() GLMResults {
 		GLM:       *glm,
 		l1wgt:     glm.L1wgt,
 		nobs:      glm.Data.NumObs(),
-		nvar:      glm.Data.NumCov(),
+		nvar:      glm.NumParams(),
 		checkStep: checkstep,
 	}
 
 	params := statmodel.FitL1Reg(rglm)
-	xnames := glm.IndRegModel.Data.XNames()
+
+	var xnames []string
+	na := glm.Data.Names()
+	for _, k := range glm.xpos {
+		xnames = append(xnames, na[k])
+	}
 
 	scale := glm.EstimateScale(params)
 
@@ -91,3 +97,4 @@ func (glm *GLM) fitL1Reg() GLMResults {
 	return results
 
 }
+*/

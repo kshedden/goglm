@@ -1,5 +1,6 @@
 package goglm
 
+/*
 import (
 	"testing"
 
@@ -60,3 +61,4 @@ func TestEnet1(t *testing.T) {
 		}
 	}
 }
+*/

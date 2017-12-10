@@ -26,7 +26,7 @@ func vectorClose(x, y []float64, eps float64) bool {
 	return true
 }
 
-func data1(wgt bool) dstream.Reg {
+func data1(wgt bool) dstream.Dstream {
 	y := []interface{}{
 		[]float64{0, 1, 3, 2, 1, 1, 0},
 	}
@@ -36,23 +36,21 @@ func data1(wgt bool) dstream.Reg {
 	x2 := []interface{}{
 		[]float64{4, 1, -1, 3, 5, -5, 3},
 	}
-	if wgt {
-		w := []interface{}{
-			[]float64{1, 2, 2, 3, 1, 3, 2},
-		}
-		da := [][]interface{}{y, x1, x2, w}
-		na := []string{"y", "x1", "x2", "w"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
-	} else {
-		da := [][]interface{}{y, x1, x2}
-		na := []string{"y", "x1", "x2"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
+	w := []interface{}{
+		[]float64{1, 2, 2, 3, 1, 3, 2},
 	}
+	da := [][]interface{}{y, x1, x2}
+	na := []string{"y", "x1", "x2"}
+
+	if wgt {
+		da = append(da, w)
+		na = append(na, "w")
+	}
+
+	return dstream.NewFromArrays(da, na)
 }
 
-func data2(wgt bool) dstream.Reg {
+func data2(wgt bool) dstream.Dstream {
 	y := []interface{}{
 		[]float64{0, 0, 1, 0, 1, 0, 0},
 	}
@@ -65,23 +63,22 @@ func data2(wgt bool) dstream.Reg {
 	x3 := []interface{}{
 		[]float64{1, -1, 1, 1, 2, 5, -1},
 	}
-	if wgt {
-		w := []interface{}{
-			[]float64{2, 1, 3, 3, 4, 2, 3},
-		}
-		da := [][]interface{}{y, x1, x2, x3, w}
-		na := []string{"y", "x1", "x2", "x3", "w"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
-	} else {
-		da := [][]interface{}{y, x1, x2, x3}
-		na := []string{"y", "x1", "x2", "x3"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
+	w := []interface{}{
+		[]float64{2, 1, 3, 3, 4, 2, 3},
 	}
+
+	da := [][]interface{}{y, x1, x2, x3}
+	na := []string{"y", "x1", "x2", "x3"}
+
+	if wgt {
+		da = append(da, w)
+		na = append(na, "w")
+	}
+
+	return dstream.NewFromArrays(da, na)
 }
 
-func data3(wgt bool) dstream.Reg {
+func data3(wgt bool) dstream.Dstream {
 	y := []interface{}{
 		[]float64{1, 1, 1, 0, 0, 0, 0},
 	}
@@ -91,24 +88,22 @@ func data3(wgt bool) dstream.Reg {
 	x2 := []interface{}{
 		[]float64{0, 1, 0, 0, -1, 0, 1},
 	}
-	var w []interface{}
-	if wgt {
-		w = []interface{}{
-			[]float64{3, 3, 2, 3, 1, 3, 2},
-		}
-		da := [][]interface{}{y, x1, x2, w}
-		na := []string{"y", "x1", "x2", "w"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "")
-	} else {
-		da := [][]interface{}{y, x1, x2}
-		na := []string{"y", "x1", "x2"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "")
+	w := []interface{}{
+		[]float64{3, 3, 2, 3, 1, 3, 2},
 	}
+
+	da := [][]interface{}{y, x1, x2}
+	na := []string{"y", "x1", "x2"}
+
+	if wgt {
+		da = append(da, w)
+		na = append(na, "w")
+	}
+
+	return dstream.NewFromArrays(da, na)
 }
 
-func data4(wgt bool) dstream.Reg {
+func data4(wgt bool) dstream.Dstream {
 	y := []interface{}{
 		[]float64{3, 1, 5, 4, 2, 3, 6},
 	}
@@ -121,24 +116,22 @@ func data4(wgt bool) dstream.Reg {
 	x3 := []interface{}{
 		[]float64{1, -1, 1, 1, 2, 5, -1},
 	}
-	var w []interface{}
-	if wgt {
-		w = []interface{}{
-			[]float64{3, 3, 2, 3, 1, 3, 2},
-		}
-		da := [][]interface{}{y, x1, x2, x3, w}
-		na := []string{"y", "x1", "x2", "x3", "w"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "w", "")
-	} else {
-		da := [][]interface{}{y, x1, x2, x3}
-		na := []string{"y", "x1", "x2", "x3"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2", "x3"}, "", "")
+	w := []interface{}{
+		[]float64{3, 3, 2, 3, 1, 3, 2},
 	}
+
+	da := [][]interface{}{y, x1, x2, x3}
+	na := []string{"y", "x1", "x2", "x3"}
+
+	if wgt {
+		da = append(da, w)
+		na = append(na, "w")
+	}
+
+	return dstream.NewFromArrays(da, na)
 }
 
-func data5(wgt bool) dstream.Reg {
+func data5(wgt bool) dstream.Dstream {
 	y := []interface{}{
 		[]float64{0, 1, 3, 2, 1, 1, 0},
 	}
@@ -151,26 +144,27 @@ func data5(wgt bool) dstream.Reg {
 	off := []interface{}{
 		[]float64{0, 0, 1, 1, 0, 0, 0},
 	}
-	var w []interface{}
-	if wgt {
-		w = []interface{}{
-			[]float64{1, 2, 2, 3, 1, 3, 2},
-		}
-		da := [][]interface{}{y, x1, x2, off, w}
-		na := []string{"y", "x1", "x2", "off", "w"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "w", "off")
-	} else {
-		da := [][]interface{}{y, x1, x2, off}
-		na := []string{"y", "x1", "x2", "off"}
-		dx := dstream.NewFromArrays(da, na)
-		return dstream.NewReg(dx, "y", []string{"x1", "x2"}, "", "off")
+	w := []interface{}{
+		[]float64{1, 2, 2, 3, 1, 3, 2},
 	}
+
+	da := [][]interface{}{y, x1, x2, off}
+	na := []string{"y", "x1", "x2", "off"}
+
+	if wgt {
+		da = append(da, w)
+		na = append(na, "w")
+	}
+
+	return dstream.NewFromArrays(da, na)
 }
 
 type tdgl struct {
 	family     *Family
-	data       dstream.Reg
+	data       dstream.Dstream
+	weight     bool
+	offset     bool
+	alpha      float64
 	start      []float64
 	params     []float64
 	stderr     []float64
@@ -186,6 +180,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data1(true),
+		weight:     true,
 		params:     []float64{1.316285, -0.047555},
 		stderr:     []float64{0.277652, 0.080877},
 		vcov:       []float64{0.077091, -0.004205, -0.004205, 0.006541},
@@ -197,6 +192,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("gaussian"),
 		start:  nil,
 		data:   data2(true),
+		weight: true,
 		params: []float64{0.191194, 0.046013, 0.090639},
 		stderr: []float64{0.199909, 0.044360, 0.082265},
 		vcov: []float64{0.039963, -0.005955, -0.011730,
@@ -210,6 +206,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("gaussian"),
 		start:      nil,
 		data:       data3(true),
+		weight:     true,
 		params:     []float64{0.418605, 0.220930},
 		stderr:     []float64{0.13620, 0.22926},
 		vcov:       []float64{0.018551, -0.012367, -0.012367, 0.052560},
@@ -221,6 +218,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data1(true),
+		weight:     true,
 		params:     []float64{0.266817, -0.035637},
 		stderr:     []float64{0.236179, 0.067480},
 		vcov:       []float64{0.055780, -0.001012, -0.001012, 0.004553},
@@ -232,6 +230,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("poisson"),
 		start:  nil,
 		data:   data2(true),
+		weight: true,
 		params: []float64{-1.540684, 0.116108, 0.246615},
 		stderr: []float64{0.775912, 0.135982, 0.283345},
 		vcov: []float64{0.602039, -0.076174, -0.174483,
@@ -245,6 +244,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data3(true),
+		weight:     true,
 		params:     []float64{-0.896361, 0.467334},
 		stderr:     []float64{0.428867, 0.647330},
 		vcov:       []float64{0.183927, -0.157139, -0.157139, 0.419036},
@@ -256,6 +256,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("binomial"),
 		start:  nil,
 		data:   data2(true),
+		weight: true,
 		params: []float64{-1.378328, 0.201911, 0.407917},
 		stderr: []float64{0.927975, 0.187708, 0.363425},
 		vcov: []float64{0.861138, -0.122218, -0.258570, -0.122218, 0.035234, 0.037427,
@@ -268,6 +269,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("binomial"),
 		start:      nil,
 		data:       data3(true),
+		weight:     true,
 		params:     []float64{-0.343610, 0.934519},
 		stderr:     []float64{0.553523, 0.963054},
 		vcov:       []float64{0.306388, -0.227123, -0.227123, 0.927473},
@@ -373,6 +375,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("invgaussian"),
 		start:  []float64{0.1, 0, 0},
 		data:   data4(true),
+		weight: true,
 		params: []float64{0.091657, -0.001893, -0.000376},
 		stderr: []float64{0.033456, 0.009052, 0.014820},
 		vcov: []float64{0.001119, -0.000203, -0.000353,
@@ -386,6 +389,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("gamma"),
 		start:  []float64{0.3, 0.0, 0.0},
 		data:   data4(true),
+		weight: true,
 		params: []float64{0.302721, -0.003171, -0.000705},
 		stderr: []float64{0.055975, 0.015255, 0.024878},
 		vcov: []float64{0.003133, -0.000569, -0.000999,
@@ -399,6 +403,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewFamily("quasipoisson"),
 		start:  nil,
 		data:   data2(true),
+		weight: true,
 		params: []float64{-1.540684, 0.116108, 0.246615},
 		stderr: []float64{0.684396089274111, 0.11994309040228321, 0.24992565563491265},
 		vcov: []float64{0.46839800701369694, -0.05926478926076194, -0.13575141649912711,
@@ -412,6 +417,7 @@ var glm_tests []tdgl = []tdgl{
 		family: NewNegBinomFamily(1, NewLink("log")),
 		start:  nil,
 		data:   data4(true),
+		weight: true,
 		params: []float64{1.191131, 0.011851, 0.004809},
 		stderr: []float64{0.187331, 0.051733, 0.083739},
 		vcov: []float64{0.035093, -0.006365, -0.011408,
@@ -423,8 +429,10 @@ var glm_tests []tdgl = []tdgl{
 	},
 	{
 		family: NewNegBinomFamily(1.5, NewLink("log")),
+		alpha:  1.5,
 		start:  nil,
 		data:   data4(true),
+		weight: true,
 		params: []float64{1.190715, 0.011981, 0.005043},
 		stderr: []float64{0.187342, 0.051768, 0.083768},
 		vcov: []float64{0.035097, -0.006366, -0.011417,
@@ -438,6 +446,8 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data5(true),
+		weight:     true,
+		offset:     true,
 		params:     []float64{-0.183029, -0.075427},
 		stderr:     []float64{0.236279, 0.074241},
 		vcov:       []float64{0.055828, -0.001225, -0.001225, 0.005512},
@@ -449,6 +459,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data1(true),
+		weight:     true,
 		params:     []float64{0.256717, -0.035340},
 		scale:      1.0,
 		l2wgt:      []float64{0.1, 0.1},
@@ -458,6 +469,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("poisson"),
 		start:      nil,
 		data:       data2(true),
+		weight:     true,
 		params:     []float64{-0.921685, 0.032864, 0.064429},
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
@@ -467,6 +479,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("binomial"),
 		start:      nil,
 		data:       data2(true),
+		weight:     true,
 		params:     []float64{-0.640768, 0.092631, 0.175485},
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
@@ -476,6 +489,7 @@ var glm_tests []tdgl = []tdgl{
 		family:     NewFamily("binomial"),
 		start:      nil,
 		data:       data2(true),
+		weight:     true,
 		params:     []float64{-0.659042, 0.097647, 0.187009},
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0, 0.1},
@@ -489,10 +503,23 @@ func TestFit(t *testing.T) {
 		for _, fmeth := range ds.fitmethods {
 
 			var glm *GLM
-			glm = NewGLM(ds.family, ds.data)
-			glm.Start = ds.start
-			glm.FitMethod = fmeth
-			glm.L2wgt = ds.l2wgt
+			glm = NewGLM(ds.data, "y")
+
+			if ds.weight {
+				glm = glm.Weight("w")
+			}
+
+			if ds.offset {
+				glm = glm.Offset("off")
+			}
+
+			glm = glm.Family(ds.family).FitMethod(fmeth).L2Weight(ds.l2wgt)
+
+			if len(ds.start) > 0 {
+				glm = glm.Start(ds.start)
+			}
+
+			glm = glm.Done()
 			result := glm.Fit()
 
 			if !vectorClose(result.Params(), ds.params, 1e-5) {

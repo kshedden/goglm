@@ -21,7 +21,7 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 	var adjy []float64
 	var nparam mat64.Vector
 
-	nvar := glm.Data.NumCov()
+	nvar := glm.NumParams()
 
 	xty := make([]float64, nvar)
 	xtx := make([]float64, nvar*nvar)
@@ -42,10 +42,17 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 		var devi float64
 		for glm.Data.Next() {
 
-			yda := glm.Data.YData()
-			wgt := glm.Data.Weights()
-			off := glm.Data.Offset()
+			var yda, wgt, off []float64
+
+			yda = glm.Data.GetPos(glm.ypos).([]float64)
 			n := len(yda)
+
+			if glm.weightpos != -1 {
+				wgt = glm.Data.GetPos(glm.weightpos).([]float64)
+			}
+			if glm.offsetpos != -1 {
+				off = glm.Data.GetPos(glm.offsetpos).([]float64)
+			}
 
 			// Allocations
 			linpred = resize(linpred, n)
@@ -56,8 +63,8 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			adjy = resize(adjy, n)
 
 			zero(linpred)
-			for j := 0; j < nvar; j++ {
-				xda := glm.Data.XData(j)
+			for j, k := range glm.xpos {
+				xda := glm.Data.GetPos(k).([]float64)
 				for i, x := range xda {
 					linpred[i] += params[j] * x
 				}
@@ -69,13 +76,13 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			if iter == 0 {
 				glm.startingMu(yda, mn)
 			} else {
-				glm.Link.InvLink(linpred, mn)
+				glm.link.InvLink(linpred, mn)
 			}
 
-			glm.Link.Deriv(mn, lderiv)
-			glm.Var.Var(mn, va)
+			glm.link.Deriv(mn, lderiv)
+			glm.vari.Var(mn, va)
 
-			devi += glm.Fam.Deviance(yda, mn, wgt, 1)
+			devi += glm.fam.Deviance(yda, mn, wgt, 1)
 
 			// Create weights for WLS
 			if wgt != nil {
@@ -100,19 +107,19 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			}
 
 			// Update the weighted moment matrices
-			for j := 0; j < nvar; j++ {
+			for j1, k1 := range glm.xpos {
 
 				// Update x' w^-1 ya
-				xda := glm.Data.XData(j)
+				xda := glm.Data.GetPos(k1).([]float64)
 				for i, y := range adjy {
-					xty[j] += y * xda[i] * irlsw[i]
+					xty[j1] += y * xda[i] * irlsw[i]
 				}
 
 				// Update x' w^-1 x
-				for k := 0; k < nvar; k++ {
-					xdb := glm.Data.XData(k)
+				for j2, k2 := range glm.xpos {
+					xdb := glm.Data.GetPos(k2).([]float64)
 					for i, _ := range xda {
-						xtx[j*nvar+k] += xda[i] * xdb[i] * irlsw[i]
+						xtx[j1*nvar+j2] += xda[i] * xdb[i] * irlsw[i]
 					}
 				}
 			}
@@ -142,7 +149,7 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 func (glm *GLM) startingMu(y []float64, mn []float64) {
 
 	var q float64
-	name := strings.ToLower(glm.Fam.Name)
+	name := strings.ToLower(glm.fam.Name)
 	if name == "binomial" {
 		q = 0.5
 	} else {

@@ -10,7 +10,10 @@ import (
 type ptlsh struct {
 	family  *Family
 	link    *Link
-	data    dstream.Reg
+	alpha   float64
+	data    dstream.Dstream
+	weight  bool
+	off     bool
 	params  []float64
 	ll      float64
 	score   []float64
@@ -21,6 +24,7 @@ type ptlsh struct {
 var pq = []ptlsh{
 	{
 		family:  NewFamily("poisson"),
+		weight:  false,
 		data:    data1(false),
 		params:  []float64{0, 0},
 		ll:      -9.48490664979,
@@ -30,6 +34,7 @@ var pq = []ptlsh{
 	},
 	{
 		family:  NewFamily("poisson"),
+		weight:  false,
 		data:    data1(false),
 		params:  []float64{1, 1},
 		ll:      -659.930531049,
@@ -39,6 +44,7 @@ var pq = []ptlsh{
 	},
 	{
 		family:  NewFamily("binomial"),
+		weight:  false,
 		data:    data2(false),
 		params:  []float64{0, 0, 0},
 		ll:      -4.85203026392,
@@ -49,6 +55,7 @@ var pq = []ptlsh{
 	{
 		family: NewFamily("binomial"),
 		link:   NewLink("log"),
+		weight: true,
 		data:   data2(true),
 		params: []float64{-0.7, 0.1, 0},
 		ll:     -14.070884019230451,
@@ -62,6 +69,7 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("binomial"),
+		weight: false,
 		data:   data2(false),
 		params: []float64{1, 0, 1},
 		ll:     -11.818141431,
@@ -73,6 +81,7 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("binomial"),
+		weight: false,
 		data:   data2(false),
 		params: []float64{0, -1, 2},
 		ll:     -16.8573417434,
@@ -84,6 +93,7 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("gamma"),
+		weight: true,
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
 		ll:     -43.463688316896253,
@@ -97,6 +107,7 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("invgaussian"),
+		weight: true,
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
 		ll:     -46.917965084595942,
@@ -110,6 +121,8 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewNegBinomFamily(1.5, NewLink("log")),
+		alpha:  1.5,
+		weight: true,
 		data:   data4(true),
 		params: []float64{1, 0, -1},
 		ll:     -77.310157634140779,
@@ -123,7 +136,9 @@ var pq = []ptlsh{
 	},
 	{
 		family: NewFamily("poisson"),
+		weight: true,
 		data:   data5(true),
+		off:    true,
 		params: []float64{-1, 2},
 		ll:     -10716.200029495829,
 		score:  []float64{-10694.53706902, -49424.45601021},
@@ -137,32 +152,42 @@ var pq = []ptlsh{
 func TestLLScoreHess(t *testing.T) {
 
 	for _, ps := range pq {
-		glm := NewGLM(ps.family, ps.data)
+
+		glm := NewGLM(ps.data, "y")
+
+		glm = glm.Family(ps.family)
 
 		if ps.link != nil {
-			glm.SetLink(ps.link)
+			glm = glm.Link(ps.link)
 		}
+		if ps.weight {
+			glm = glm.Weight("w")
+		}
+		if ps.off {
+			glm = glm.Offset("off")
+		}
+		glm = glm.Done()
 
-		m := ps.data.NumCov()
+		m := glm.NumParams()
 		score := make([]float64, m)
 		hess := make([]float64, m*m)
 
-		ll := glm.LogLike(ps.params, 1)
+		ll := glm.LogLike(&GLMParams{ps.params, 1})
 		if !scalarClose(ll, ps.ll, 1e-5) {
 			t.Fail()
 		}
 
-		glm.Score(ps.params, 1, score)
+		glm.Score(&GLMParams{ps.params, 1}, score)
 		if !vectorClose(score, ps.score, 1e-5) {
 			t.Fail()
 		}
 
-		glm.Hessian(ps.params, 1, statmodel.ExpHess, hess)
+		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ExpHess, hess)
 		if !vectorClose(hess, ps.exphess, 1e-5) {
 			t.Fail()
 		}
 
-		glm.Hessian(ps.params, 1, statmodel.ObsHess, hess)
+		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ObsHess, hess)
 		if !vectorClose(hess, ps.obshess, 1e-5) {
 			t.Fail()
 		}

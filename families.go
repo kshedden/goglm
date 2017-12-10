@@ -21,14 +21,15 @@ type Family struct {
 	// The deviance function for the family
 	Deviance Vec3Func
 
-	// The names of valid links for this family
+	// The names of valid links for this family.  The first listed
+	// link should be the canonical link.
 	validLinks []string
 
 	// The link in use by the family, only specified for negative binomial
 	link *Link
 
-	// Additional family-specific information
-	Aux interface{}
+	// Negatie binomial parameter
+	alpha float64
 }
 
 // NewFamily returns a family object corresponding to the given name.
@@ -83,14 +84,14 @@ var gaussian = Family{
 	Name:       "Gaussian",
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
-	validLinks: []string{"log", "identity", "recip"},
+	validLinks: []string{"identity", "log", "recip"},
 }
 
 var gamma = Family{
 	Name:       "Gamma",
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
-	validLinks: []string{"log", "identity", "recip"},
+	validLinks: []string{"recip", "log", "identity"},
 }
 
 var invGaussian = Family{
@@ -348,7 +349,7 @@ func NewNegBinomFamily(alpha float64, link *Link) *Family {
 		Name:       "NegBinom",
 		LogLike:    loglike,
 		Deviance:   deviance,
-		Aux:        NegBinomAux{Alpha: alpha},
+		alpha:      alpha,
 		validLinks: []string{"log", "identity"},
 		link:       link,
 	}
