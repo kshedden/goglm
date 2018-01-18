@@ -55,11 +55,6 @@ func getData() dstream.Dstream {
 	dst.SetChunkSize(100)
 	dst.Init(true)
 
-	//for dst.Next() {
-	//	x := dst.GetPos(0).([]float64)
-	//	fmt.Printf("%v\n", len(x))
-	//}
-
 	dsc := dstream.MemCopy(dst)
 
 	dsc.Reset()

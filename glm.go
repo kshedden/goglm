@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gonum/floats"
-	"github.com/gonum/optimize"
+	"gonum.org/v1/gonum/floats"
+	"gonum.org/v1/gonum/optimize"
+
 	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/statmodel"
 )

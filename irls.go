@@ -5,8 +5,8 @@ import (
 	"math"
 	"strings"
 
-	"github.com/gonum/floats"
-	"github.com/gonum/matrix/mat64"
+	"gonum.org/v1/gonum/floats"
+	"gonum.org/v1/gonum/mat"
 )
 
 func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
@@ -19,7 +19,7 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 	var lderiv []float64
 	var irlsw []float64
 	var adjy []float64
-	var nparam mat64.Vector
+	var nparam mat.VecDense
 
 	nvar := glm.NumParams()
 
@@ -126,8 +126,8 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 		}
 
 		// Update the parameters
-		xtxm := mat64.NewDense(nvar, nvar, xtx)
-		xtyv := mat64.NewVector(nvar, xty)
+		xtxm := mat.NewDense(nvar, nvar, xtx)
+		xtyv := mat.NewVecDense(nvar, xty)
 		err := nparam.SolveVec(xtxm, xtyv)
 		if err != nil {
 			for j := 0; j < nvar; j++ {
