@@ -1,3 +1,4 @@
+// Package goglm fits generalized linear models (GLM's) to data.
 package goglm
 
 import (
