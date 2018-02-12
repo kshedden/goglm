@@ -55,17 +55,13 @@ type GLM struct {
 	// Gradient method if present.
 	l2wgt []float64
 
-	// Storage for focused data, used in coordinate descent
-	// algorithms for L1 regularized fitting.
-	focdat *statmodel.FocusData
-
-	// The L2 norm of every covariate.  If scale=true,
+	// The L2 norm of every covariate.  If norm=true,
 	// calculations are done on normalized covariates.
 	xn []float64
 
-	// If scale = true, calculations are done on normalized
+	// If norm=true, calculations are done on normalized
 	// covariates.
-	scale bool
+	norm bool
 }
 
 type GLMParams struct {
@@ -125,10 +121,9 @@ func NewGLM(data dstream.Dstream, yname string) *GLM {
 	}
 }
 
-// If true, covariates are internally rescaled.  Currently this is
-// ignored by IRLS fitting.
-func (glm *GLM) Scale() *GLM {
-	glm.scale = true
+// If true, covariates are internally normalized.
+func (glm *GLM) Norm() *GLM {
+	glm.norm = true
 	return glm
 }
 
@@ -162,7 +157,7 @@ func (glm *GLM) Family(fam *Family) *GLM {
 }
 
 // L2Weight set the L2 weights used for ridge-regularization.  When
-// using L2 weights it is advisable to call Scale as well so that the
+// using L2 weights it is advisable to call Norm as well so that the
 // weights have equal impacts on the covariates.
 func (glm *GLM) L2Weight(l2wgt []float64) *GLM {
 	glm.l2wgt = l2wgt
@@ -170,7 +165,7 @@ func (glm *GLM) L2Weight(l2wgt []float64) *GLM {
 }
 
 // L1Weight set the L1 weights used for ridge-regularization.  When
-// using L1 weights it is advisable to call Scale as well so that the
+// using L1 weights it is advisable to call Norm as well so that the
 // weights have equal impacts on the covariates.
 func (glm *GLM) L1Weight(l1wgt []float64) *GLM {
 	glm.l1wgt = l1wgt
@@ -281,7 +276,7 @@ func (glm *GLM) Done() *GLM {
 	}
 
 	glm.findvars()
-	glm.getscale()
+	glm.getnorm()
 	glm.setup()
 
 	if len(glm.start) == 0 {
@@ -291,11 +286,11 @@ func (glm *GLM) Done() *GLM {
 	return glm
 }
 
-func (glm *GLM) getscale() {
+func (glm *GLM) getnorm() {
 	// Calculate the L2 norms of the covariates.
 	glm.data.Reset()
 	glm.xn = make([]float64, len(glm.xpos))
-	if glm.scale {
+	if glm.norm {
 		for glm.data.Next() {
 			for j, k := range glm.xpos {
 				x := glm.data.GetPos(k).([]float64)
@@ -609,21 +604,25 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 	}
 }
 
+// Get a focusable version of the model, which can be projected onto
+// the coordinate axes for coordinate optimization.  Exposed for use
+// in elastic net optimization, but unikely to be useful to ordinary
+// users.
 func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 
-	// Set up the 1d data.
-	g.focdat = statmodel.NewFocusData(g.data, g.xpos, g.ypos, g.xn)
+	// Set up the focusable data.
+	fdat := statmodel.NewFocusData(g.data, g.xpos, g.ypos, g.xn)
 
 	if g.weightpos != -1 {
-		g.focdat.Weight(g.weightpos)
+		fdat.Weight(g.weightpos)
 	}
 
 	if g.offsetpos != -1 {
-		g.focdat.Offset(g.offsetpos)
+		fdat.Offset(g.offsetpos)
 	}
-	g.focdat = g.focdat.Done()
+	fdat = fdat.Done()
 
-	newglm := NewGLM(g.focdat, "y").Family(g.fam).Link(g.link).VarFunc(g.vari).Offset("off")
+	newglm := NewGLM(fdat, "y").Family(g.fam).Link(g.link).VarFunc(g.vari).Offset("off")
 	if g.weightpos != -1 {
 		newglm.Weight("wgt")
 	}
@@ -854,6 +853,7 @@ func one(x []float64) {
 	}
 }
 
+// Summary displays a summary table of the model results.
 func (rslt *GLMResults) Summary() string {
 
 	glm := rslt.Model().(*GLM)

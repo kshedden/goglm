@@ -126,7 +126,7 @@ func model4() {
 	}
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Scale().Done()
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Norm().Done()
 
 	rslt := glm.Fit()
 	print(rslt.Summary() + "\n\n")
