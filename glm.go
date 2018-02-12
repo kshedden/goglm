@@ -98,6 +98,8 @@ func (glm *GLM) NumParams() int {
 	return len(glm.xpos)
 }
 
+// Xpos returns the positions of the covariates in the model's data
+// stream.
 func (glm *GLM) Xpos() []int {
 	return glm.xpos
 }
