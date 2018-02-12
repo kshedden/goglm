@@ -3,9 +3,11 @@ __goglm__ supports estimation of generalized linear models in Go.
 A basic usage example is as follows:
 
 ```
-glm := NewGLM(NewFamily("binomial"), data)
-result := glm.Fit()
-print(result.Summary())
+fam := goglm.NewFamily("binomial")
+// data is a dstream
+glm := goglm.NewGLM(data, "Y").Family(fam).Done()
+rslt := glm.Fit()
+print(rslt.Summary())
 ```
 
 `NewFamily` returns a GLM family (e.g. `Binomial`), and `data` is a
