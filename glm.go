@@ -622,21 +622,24 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 // users.
 func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 
-	// Set up the focusable data.
-	fdat := statmodel.NewFocusData(g.data, g.xpos, g.ypos, g.xn)
-
+	other := []string{g.yname}
 	if g.weightpos != -1 {
-		fdat.Weight(g.weightpos)
+		other = append(other, g.weightname)
 	}
 
+	// Set up the focusable data.
+	fdat := statmodel.NewFocusData(g.data, g.xpos, g.xn).Other(other)
 	if g.offsetpos != -1 {
+		// An actual offset, to be combined if present with
+		// the offset that results by combining the non-focus
+		// covariates.
 		fdat.Offset(g.offsetpos)
 	}
 	fdat = fdat.Done()
 
-	newglm := NewGLM(fdat, "y").Family(g.fam).Link(g.link).VarFunc(g.vari).Offset("off")
+	newglm := NewGLM(fdat, g.yname).Family(g.fam).Link(g.link).VarFunc(g.vari).Offset("off")
 	if g.weightpos != -1 {
-		newglm.Weight("wgt")
+		newglm.Weight(g.weightname)
 	}
 	newglm.Done()
 
