@@ -21,13 +21,13 @@ Supported features
 
 * Estimation via IRLS and [gonum](http://github.com/gonum) optimizers
 
-* Most of the more popular families, links and variance functions
+* Supports many GLM families, links and variance functions
 
-* Estimation for weighted datasets
+* Supports estimation for case-weighted datasets
 
 * Models can be specified using formulas
 
-* Regularized (ridge/LASSO) estimation
+* Regularized (ridge/LASSO/elastic net) estimation
 
 * Offsets
 
