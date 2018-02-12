@@ -648,6 +648,13 @@ func (glm *GLM) fitRegularized() *GLMResults {
 	par := statmodel.FitL1Reg(glm, start, glm.l1wgt, glm.xn, checkstep)
 	coeff := par.GetCoeff()
 
+	// Since coeff is transformed back to the original scale, we
+	// need to stop normalizing (else EstimateScale and other
+	// post-fit quantities will be wrong).
+	for i, _ := range glm.xn {
+		glm.xn[i] = 1
+	}
+
 	// Covariate names
 	var xna []string
 	na := glm.data.Names()
