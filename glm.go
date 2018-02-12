@@ -64,19 +64,25 @@ type GLM struct {
 	norm bool
 }
 
+// GLMParams represents the model parameters for a GLM.
 type GLMParams struct {
 	coeff []float64
 	scale float64
 }
 
+// GetCoeff returns the coefficients (slopes for individual
+// covariates) from the parameter.
 func (p *GLMParams) GetCoeff() []float64 {
 	return p.coeff
 }
 
+// SetCoeff sets the coefficients (slopes for individual covariates)
+// for the parameter.
 func (p *GLMParams) SetCoeff(coeff []float64) {
 	p.coeff = coeff
 }
 
+// Clone produces a deep copy of the parameter value.
 func (p *GLMParams) Clone() statmodel.Parameter {
 	coeff := make([]float64, len(p.coeff))
 	copy(coeff, p.coeff)
@@ -86,6 +92,7 @@ func (p *GLMParams) Clone() statmodel.Parameter {
 	}
 }
 
+// NumParams returns the number of covariates in the model.
 func (glm *GLM) NumParams() int {
 	return len(glm.xpos)
 }
@@ -94,6 +101,7 @@ func (glm *GLM) Xpos() []int {
 	return glm.xpos
 }
 
+// DataSet returns the data stream that is used to fit the model.
 func (glm *GLM) DataSet() dstream.Dstream {
 	return glm.data
 }
@@ -286,6 +294,7 @@ func (glm *GLM) Done() *GLM {
 	return glm
 }
 
+// If norm=true, getnorm calculates the L2 norms of the covariates.
 func (glm *GLM) getnorm() {
 	// Calculate the L2 norms of the covariates.
 	glm.data.Reset()
@@ -631,12 +640,20 @@ func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 	return newglm
 }
 
+// Focus sets the data to contain only one predictor (with the given
+// index).  The effects of the remaining covariates are captured
+// throughthe offset.  The is exposed for use in elastic net fitting
+// but is unlikely to be useful for ordinary users.  Can only be
+// called on a focusable version of the model value.
 func (g *GLM) Focus(j int, coeff []float64) {
 	g.data.(*statmodel.FocusData).Focus(j, coeff)
 }
 
-// FitRegularized estimates the parameters of the GLM using L1
-// regularization (with optimal L2 regularization).
+// fitRegularized estimates the parameters of the GLM using L1
+// regularization (with optimal L2 regularization).  This invokes
+// coordinate descent optimization.  For fitting with no L1
+// regularization (with or without L2 regularization), call
+// fitGradient which invokes gradient optimization.
 func (glm *GLM) fitRegularized() *GLMResults {
 
 	start := &GLMParams{
@@ -731,6 +748,8 @@ func (glm *GLM) Fit() *GLMResults {
 	return results
 }
 
+// fitGradient uses gradient-based optimization to obtain the fitted
+// GLM parameters.
 func (glm *GLM) fitGradient(start []float64) ([]float64, float64) {
 
 	p := optimize.Problem{
