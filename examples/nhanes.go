@@ -49,12 +49,7 @@ func getData() dstream.Dstream {
 	keepfloat := []string{"RIAGENDR", "RIDAGEYR", "BPXSY1"}
 	keepstring := []string{"RIDRETH1"}
 
-	dst := dstream.FromCSV(gid)
-	dst.SetFloatVars(keepfloat)
-	dst.SetStringVars(keepstring)
-	dst.SetChunkSize(100)
-	dst.Init(true)
-
+	dst := dstream.FromCSV(gid).SetFloatVars(keepfloat).SetStringVars(keepstring).SetChunkSize(100).HasHeader().Done()
 	dsc := dstream.MemCopy(dst)
 
 	dsc.Reset()
@@ -68,18 +63,15 @@ func model1() {
 	dp := getData()
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
-	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp, reflev, nil, nil)
-	f2 := f1.ParseAll([]string{"BPXSY1"})
+	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).Done()
+	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
-	xn := []string{"icept", "RIAGENDR", "RIDAGEYR"}
-	f4 := dstream.NewReg(f3, "BPXSY1", xn, "", "")
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(fam, f4)
+	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary())
+	print(rslt.Summary() + "\n\n")
 }
 
 func model2() {
@@ -89,15 +81,14 @@ func model2() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp, reflev, nil, nil)
-	f2 := f1.ParseAll([]string{"BPXSY1"})
-	f3 := dstream.DropNA(f2)
-	f4 := dstream.NewReg(f3, "BPXSY1", nil, "", "")
+	f1 := formula.New(fml, dp).RefLevels(reflev).Keep([]string{"BPXSY1"}).Done()
+	f2 := dstream.MemCopy(f1)
+	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(fam, f4)
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary())
+	print(rslt.Summary() + "\n\n")
 }
 
 func model3() {
@@ -107,15 +98,14 @@ func model3() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1 + RIAGENDR * RIDAGEYR"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp, reflev, nil, nil)
-	f2 := f1.ParseAll([]string{"BPXSY1"})
-	f3 := dstream.DropNA(f2)
-	f4 := dstream.NewReg(f3, "BPXSY1", nil, "", "")
+	f1 := formula.New(fml, dp).RefLevels(reflev).Keep([]string{"BPXSY1"}).Done()
+	f2 := dstream.MemCopy(f1)
+	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(fam, f4)
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary())
+	print(rslt.Summary() + "\n\n")
 }
 
 func model4() {
@@ -125,22 +115,21 @@ func model4() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp, reflev, nil, nil)
-	f2 := f1.ParseAll([]string{"BPXSY1"})
-	f3 := dstream.DropNA(f2)
-	f4 := dstream.NewReg(f3, "BPXSY1", nil, "", "")
-
-	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(fam, f4)
+	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).RefLevels(reflev).Done()
+	f1 = dstream.DropNA(f1)
+	f2 := dstream.MemCopy(f1)
 
 	wt := 0.01
-	glm.L1wgt = make([]float64, f4.NumCov())
-	for i := 1; i < f4.NumCov(); i++ {
-		glm.L1wgt[i] = wt
+	l1wgt := []float64{0}
+	for i := 0; i < 6; i++ {
+		l1wgt = append(l1wgt, wt)
 	}
 
+	fam := goglm.NewFamily("gaussian")
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Scale().Done()
+
 	rslt := glm.Fit()
-	print(rslt.Summary())
+	print(rslt.Summary() + "\n\n")
 }
 
 func model5() {
@@ -158,20 +147,19 @@ func model5() {
 		}
 		return &formula.ColSet{
 			Names: []string{na},
-			Data:  [][]float64{y},
+			Data:  []interface{}{y},
 		}
 	}
 
-	f1 := formula.New(fml, dp, reflev, nil, funcs)
-	f2 := f1.ParseAll([]string{"BPXSY1"})
-	f3 := dstream.DropNA(f2)
-	f4 := dstream.NewReg(f3, "BPXSY1", nil, "", "")
+	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).RefLevels(reflev).Funcs(funcs).Done()
+	f2 := dstream.MemCopy(f1)
+	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(fam, f4)
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 
 	rslt := glm.Fit()
-	print(rslt.Summary())
+	print(rslt.Summary() + "\n\n")
 }
 
 func main() {

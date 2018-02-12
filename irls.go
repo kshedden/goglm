@@ -36,22 +36,22 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 	var dev []float64
 
 	for iter := 0; iter < maxiter; iter++ {
-		glm.Data.Reset()
+		glm.data.Reset()
 		zero(xtx)
 		zero(xty)
 		var devi float64
-		for glm.Data.Next() {
+		for glm.data.Next() {
 
 			var yda, wgt, off []float64
 
-			yda = glm.Data.GetPos(glm.ypos).([]float64)
+			yda = glm.data.GetPos(glm.ypos).([]float64)
 			n := len(yda)
 
 			if glm.weightpos != -1 {
-				wgt = glm.Data.GetPos(glm.weightpos).([]float64)
+				wgt = glm.data.GetPos(glm.weightpos).([]float64)
 			}
 			if glm.offsetpos != -1 {
-				off = glm.Data.GetPos(glm.offsetpos).([]float64)
+				off = glm.data.GetPos(glm.offsetpos).([]float64)
 			}
 
 			// Allocations
@@ -64,9 +64,9 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 
 			zero(linpred)
 			for j, k := range glm.xpos {
-				xda := glm.Data.GetPos(k).([]float64)
+				xda := glm.data.GetPos(k).([]float64)
 				for i, x := range xda {
-					linpred[i] += params[j] * x
+					linpred[i] += params[j] * x / glm.xn[j]
 				}
 			}
 			if off != nil {
@@ -110,16 +110,16 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			for j1, k1 := range glm.xpos {
 
 				// Update x' w^-1 ya
-				xda := glm.Data.GetPos(k1).([]float64)
+				xda := glm.data.GetPos(k1).([]float64)
 				for i, y := range adjy {
-					xty[j1] += y * xda[i] * irlsw[i]
+					xty[j1] += y * xda[i] * irlsw[i] / glm.xn[j1]
 				}
 
 				// Update x' w^-1 x
 				for j2, k2 := range glm.xpos {
-					xdb := glm.Data.GetPos(k2).([]float64)
+					xdb := glm.data.GetPos(k2).([]float64)
 					for i, _ := range xda {
-						xtx[j1*nvar+j2] += xda[i] * xdb[i] * irlsw[i]
+						xtx[j1*nvar+j2] += xda[i] * xdb[i] * irlsw[i] / (glm.xn[j1] * glm.xn[j2])
 					}
 				}
 			}
@@ -141,6 +141,11 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 		if len(dev) > 3 && math.Abs(dev[len(dev)-1]-dev[len(dev)-2]) < dtol {
 			break
 		}
+	}
+
+	// Undo the scaling
+	for j := range params {
+		params[j] /= glm.xn[j]
 	}
 
 	return params

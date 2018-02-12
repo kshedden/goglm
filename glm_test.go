@@ -1,6 +1,7 @@
 package goglm
 
 import (
+	"fmt"
 	"math"
 	"testing"
 
@@ -159,7 +160,8 @@ func data5(wgt bool) dstream.Dstream {
 	return dstream.NewFromArrays(da, na)
 }
 
-type tdgl struct {
+// A test problem
+type testprob struct {
 	family     *Family
 	data       dstream.Dstream
 	weight     bool
@@ -172,10 +174,12 @@ type tdgl struct {
 	ll         float64
 	scale      float64
 	l2wgt      []float64
+	l1wgt      []float64
 	fitmethods []string
+	scalecov   []bool
 }
 
-var glm_tests []tdgl = []tdgl{
+var glm_tests []testprob = []testprob{
 	{
 		family:     NewFamily("gaussian"),
 		start:      nil,
@@ -187,6 +191,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -19.14926021670413,
 		scale:      1.0414236578435769,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -201,6 +206,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -11.876495505764467,
 		scale:      0.25882586275287583,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -213,6 +219,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -11.862285137866323,
 		scale:      0.26589147286821707,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -225,6 +232,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -19.00280708909699,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -239,6 +247,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -13.098177137990557,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -251,6 +260,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -13.768882387425702,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -264,6 +274,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -11.17418536789415,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -276,6 +287,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -11.245509472906111,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -289,6 +301,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -3.9607532681097091,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -300,6 +313,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -4.53963553741,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -311,6 +325,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -9.1041354864426385,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -324,6 +339,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -4.3466061504389559,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -335,6 +351,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -5.4060591253,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -346,6 +363,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -9.621454,
 		scale:      1.21752988048,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -359,6 +377,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -4.596270,
 		scale:      0.334176605228,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -370,6 +389,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -4.944550,
 		scale:      0.32,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("invgaussian"),
@@ -384,6 +404,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -33.701849656107399,
 		scale:      0.074887605672913735,
 		fitmethods: []string{"IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("gamma"),
@@ -398,6 +419,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -31.687753839200358,
 		scale:      0.25143442760931506,
 		fitmethods: []string{"IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewFamily("quasipoisson"),
@@ -412,6 +434,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -13.098177137990557,
 		scale:      0.7780190501841399,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewNegBinomFamily(1, NewLink("log")),
@@ -425,7 +448,8 @@ var glm_tests []tdgl = []tdgl{
 			-0.011408, 0.002968, 0.007012},
 		ll:         -39.875709730019153,
 		scale:      0.19468567690459238,
-		fitmethods: []string{"Gradient", "IRLS"},
+		fitmethods: []string{"IRLS"}, // Gradient does not converge
+		scalecov:   []bool{false, true},
 	},
 	{
 		family: NewNegBinomFamily(1.5, NewLink("log")),
@@ -441,6 +465,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -42.669972197288509,
 		scale:      0.14064363313622641,
 		fitmethods: []string{"IRLS"}, // Gradient does not converge
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -454,6 +479,7 @@ var glm_tests []tdgl = []tdgl{
 		ll:         -15.259195632772048,
 		scale:      1.0,
 		fitmethods: []string{"Gradient", "IRLS"},
+		scalecov:   []bool{false, true},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -464,6 +490,7 @@ var glm_tests []tdgl = []tdgl{
 		scale:      1.0,
 		l2wgt:      []float64{0.1, 0.1},
 		fitmethods: []string{"Gradient"},
+		scalecov:   []bool{false},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -474,6 +501,7 @@ var glm_tests []tdgl = []tdgl{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
 		fitmethods: []string{"Gradient"},
+		scalecov:   []bool{false},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -484,6 +512,7 @@ var glm_tests []tdgl = []tdgl{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
 		fitmethods: []string{"Gradient"},
+		scalecov:   []bool{false},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -494,60 +523,115 @@ var glm_tests []tdgl = []tdgl{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0, 0.1},
 		fitmethods: []string{"Gradient"},
+		scalecov:   []bool{false},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(false),
+		weight:     false,
+		params:     []float64{-0.465363, 0, 0},
+		scale:      1.0,
+		l1wgt:      []float64{0.1, 0.1, 0.1},
+		fitmethods: []string{"Coordinate"},
+		scalecov:   []bool{false},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(false),
+		weight:     false,
+		params:     []float64{-0.737198, 0.024176, 0.017089},
+		scale:      1.0,
+		l1wgt:      []float64{0.05, 0.05, 0.05},
+		fitmethods: []string{"Coordinate"},
+		scalecov:   []bool{false},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(false),
+		weight:     false,
+		params:     []float64{-0.89149010, 0.0312166489, 0.0485293176},
+		scale:      1.0,
+		l1wgt:      []float64{0.01, 0.01, 0.01},
+		fitmethods: []string{"Coordinate"},
+		scalecov:   []bool{true},
 	},
 }
 
 func TestFit(t *testing.T) {
 
 	for _, ds := range glm_tests {
-		for _, fmeth := range ds.fitmethods {
+		for _, scalecov := range ds.scalecov {
+			for _, fmeth := range ds.fitmethods {
 
-			var glm *GLM
-			glm = NewGLM(ds.data, "y")
+				var glm *GLM
+				glm = NewGLM(ds.data, "y")
 
-			if ds.weight {
-				glm = glm.Weight("w")
+				if ds.weight {
+					glm = glm.Weight("w")
+				}
+
+				if ds.offset {
+					glm = glm.Offset("off")
+				}
+
+				glm = glm.Family(ds.family).FitMethod(fmeth)
+
+				if ds.l2wgt != nil {
+					glm = glm.L2Weight(ds.l2wgt)
+				}
+
+				if scalecov {
+					glm = glm.Scale()
+				}
+
+				if len(ds.start) > 0 {
+					glm = glm.Start(ds.start)
+				}
+
+				if len(ds.l1wgt) > 0 {
+					glm = glm.L1Weight(ds.l1wgt)
+				}
+
+				glm = glm.Done()
+				result := glm.Fit()
+
+				if !vectorClose(result.Params(), ds.params, 1e-5) {
+					print("params\n")
+					fmt.Printf("%v\n", result.Params())
+					t.Fail()
+				}
+
+				if math.Abs(result.Scale()-ds.scale) > 1e-5 {
+					print("scale\n")
+					t.Fail()
+				}
+
+				// No stderr or vcov with regularization
+				if ds.l2wgt != nil || ds.l1wgt != nil {
+					continue
+				}
+
+				if !scalarClose(result.LogLike(), ds.ll, 1e-5) {
+					print("loglike\n")
+					t.Fail()
+				}
+
+				if !vectorClose(result.StdErr(), ds.stderr, 1e-5) {
+					print("stderr")
+					t.Fail()
+				}
+
+				if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
+					print("vcov")
+					t.Fail()
+				}
+
+				// Smoke test
+				_ = result.Summary()
 			}
-
-			if ds.offset {
-				glm = glm.Offset("off")
-			}
-
-			glm = glm.Family(ds.family).FitMethod(fmeth).L2Weight(ds.l2wgt)
-
-			if len(ds.start) > 0 {
-				glm = glm.Start(ds.start)
-			}
-
-			glm = glm.Done()
-			result := glm.Fit()
-
-			if !vectorClose(result.Params(), ds.params, 1e-5) {
-				t.Fail()
-			}
-
-			if math.Abs(result.Scale()-ds.scale) > 1e-5 {
-				t.Fail()
-			}
-
-			// No stderr or vcov with regularization
-			if ds.l2wgt != nil {
-				continue
-			}
-			if !scalarClose(result.LogLike(), ds.ll, 1e-5) {
-				t.Fail()
-			}
-
-			if !vectorClose(result.StdErr(), ds.stderr, 1e-5) {
-				t.Fail()
-			}
-
-			if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
-				t.Fail()
-			}
-
-			// Smoke test
-			result.Summary()
 		}
 	}
 }
