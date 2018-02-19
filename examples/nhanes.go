@@ -162,10 +162,46 @@ func model5() {
 	print(rslt.Summary() + "\n\n")
 }
 
+func model6() {
+
+	dp := getData()
+
+	di := func(v map[string]interface{}, x interface{}) {
+		z := x.([]float64)
+		bp := v["BPXSY1"].([]float64)
+		for i := range bp {
+			if bp[i] >= 130 {
+				z[i] = 1
+			} else {
+				z[i] = 0
+			}
+		}
+	}
+
+	dp.Reset()
+	dp = dstream.Apply(dp, "BP", di, "float64")
+	dp = dstream.MemCopy(dp)
+
+	fml := "1 + RIAGENDR + RIDAGEYR"
+
+	f1 := formula.New(fml, dp).Keep([]string{"BP"}).Done()
+	f2 := dstream.MemCopy(f1)
+	f3 := dstream.DropNA(f2)
+
+	l1wgt := []float64{0.1, 0.1, 0.1}
+	l2wgt := []float64{1, 1, 1}
+
+	fam := goglm.NewFamily("binomial")
+	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).Norm().Done()
+	rslt := glm.Fit()
+	print(rslt.Summary() + "\n\n")
+}
+
 func main() {
 	model1()
 	model2()
 	model3()
 	model4()
 	model5()
+	model6()
 }

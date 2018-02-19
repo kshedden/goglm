@@ -313,6 +313,13 @@ func (glm *GLM) getnorm() {
 		}
 		for j := range glm.xn {
 			glm.xn[j] = math.Sqrt(glm.xn[j])
+			if glm.xn[j] == 0 {
+				names := glm.data.Names()
+				name := names[glm.xpos[j]]
+				msg := fmt.Sprintf("Variable %s has zero variance.\n", name)
+				panic(msg)
+			}
+
 		}
 	} else {
 		for k := range glm.xn {
@@ -641,6 +648,19 @@ func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 	if g.weightpos != -1 {
 		newglm.Weight(g.weightname)
 	}
+
+	if g.l1wgt != nil {
+		newglm = newglm.L1Weight(g.l1wgt)
+	}
+
+	if g.l2wgt != nil {
+		newglm = newglm.L2Weight(g.l2wgt)
+	}
+
+	if g.weightname != "" {
+		newglm = newglm.Weight(g.weightname)
+	}
+
 	newglm.Done()
 
 	return newglm
@@ -651,8 +671,12 @@ func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 // throughthe offset.  The is exposed for use in elastic net fitting
 // but is unlikely to be useful for ordinary users.  Can only be
 // called on a focusable version of the model value.
-func (g *GLM) Focus(j int, coeff []float64) {
+func (g *GLM) Focus(j int, coeff []float64, l2wgt float64) {
 	g.data.(*statmodel.FocusData).Focus(j, coeff)
+
+	if l2wgt > 0 {
+		g.l2wgt[0] = l2wgt
+	}
 }
 
 // fitRegularized estimates the parameters of the GLM using L1
@@ -668,7 +692,7 @@ func (glm *GLM) fitRegularized() *GLMResults {
 	}
 
 	checkstep := strings.ToLower(glm.fam.Name) != "gaussian"
-	par := statmodel.FitL1Reg(glm, start, glm.l1wgt, glm.xn, checkstep)
+	par := statmodel.FitL1Reg(glm, start, glm.l1wgt, glm.l2wgt, glm.xn, checkstep, glm.norm)
 	coeff := par.GetCoeff()
 
 	// Since coeff is transformed back to the original scale, we
