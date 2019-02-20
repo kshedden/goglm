@@ -442,12 +442,7 @@ func (glm *GLM) Score(params statmodel.Parameter, score []float64) {
 	gpar := params.(*GLMParams)
 	coeff := gpar.coeff
 
-	var linpred []float64
-	var mn []float64
-	var deriv []float64
-	var va []float64
-	var fac []float64
-	var facw []float64
+	var linpred, mn, deriv, va, fac, facw []float64
 
 	glm.data.Reset()
 	zero(score)
@@ -521,14 +516,7 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 	gpar := param.(*GLMParams)
 	coeff := gpar.coeff
 
-	var linpred []float64
-	var mn []float64
-	var lderiv []float64
-	var lderiv2 []float64
-	var va []float64
-	var vad []float64
-	var fac []float64
-	var sfac []float64
+	var linpred, mn, lderiv, lderiv2, va, vad, fac, sfac []float64
 
 	nvar := glm.NumParams()
 	glm.data.Reset()
@@ -625,8 +613,7 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 
 // Get a focusable version of the model, which can be projected onto
 // the coordinate axes for coordinate optimization.  Exposed for use
-// in elastic net optimization, but unikely to be useful to ordinary
-// users.
+// in elastic net optimization.
 func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 
 	other := []string{g.yname}
@@ -646,19 +633,17 @@ func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 
 	newglm := NewGLM(fdat, g.yname).Family(g.fam).Link(g.link).VarFunc(g.vari).Offset("off")
 	if g.weightpos != -1 {
-		newglm.Weight(g.weightname)
+		newglm = newglm.Weight(g.weightname)
+	} else if g.weightname != "" {
+		newglm = newglm.Weight(g.weightname)
 	}
 
 	if g.l1wgt != nil {
-		newglm = newglm.L1Weight(g.l1wgt)
+		newglm = newglm.L1Weight(make([]float64, 1)) //g.l1wgt)
 	}
 
 	if g.l2wgt != nil {
-		newglm = newglm.L2Weight(g.l2wgt)
-	}
-
-	if g.weightname != "" {
-		newglm = newglm.Weight(g.weightname)
+		newglm = newglm.L2Weight(make([]float64, 1)) //g.l2wgt)
 	}
 
 	newglm.Done()
@@ -668,10 +653,11 @@ func (g *GLM) GetFocusable() statmodel.ModelFocuser {
 
 // Focus sets the data to contain only one predictor (with the given
 // index).  The effects of the remaining covariates are captured
-// throughthe offset.  The is exposed for use in elastic net fitting
-// but is unlikely to be useful for ordinary users.  Can only be
+// through dthe offset.  The method is exposed for use in elastic net
+// fitting, but is unlikely to be useful for ordinary users.  Can only be
 // called on a focusable version of the model value.
 func (g *GLM) Focus(j int, coeff []float64, l2wgt float64) {
+
 	g.data.(*statmodel.FocusData).Focus(j, coeff)
 
 	if l2wgt > 0 {
@@ -733,7 +719,7 @@ func (glm *GLM) Fit() *GLMResults {
 	maxiter := 20
 
 	var start []float64
-	if glm.Start != nil {
+	if glm.start != nil {
 		start = glm.start
 	} else {
 		start = make([]float64, nvar)
@@ -770,9 +756,8 @@ func (glm *GLM) Fit() *GLMResults {
 	}
 
 	results := &GLMResults{
-		BaseResults: statmodel.NewBaseResults(glm,
-			ll, params, xna, vcov),
-		scale: scale,
+		BaseResults: statmodel.NewBaseResults(glm, ll, params, xna, vcov),
+		scale:       scale,
 	}
 
 	return results
@@ -909,29 +894,70 @@ func one(x []float64) {
 	}
 }
 
-// Summary displays a summary table of the model results.
-func (rslt *GLMResults) Summary() string {
+// GLMSummary summarizes a fitted generalized linear model.
+type GLMSummary struct {
 
-	glm := rslt.Model().(*GLM)
+	// The GLM
+	glm *GLM
 
-	sum := &statmodel.Summary{}
+	// The results structure
+	results *GLMResults
+
+	// Transform the parameters with this function.  If nil,
+	// no transformation is applied.  If paramXform is provided,
+	// the standard error and Z-score are not shown.
+	paramXform func(float64) float64
+
+	// Messages that are appended to the table
+	messages []string
+}
+
+// SetScale sets the scale on which the parameter results are
+// displayed in the summary.  'xf' is a function that maps
+// parameters and confidence limits from the linear scale to
+// the desired scale.  'msg' is a message that is appended
+// to the summary table.
+func (gs *GLMSummary) SetScale(xf func(float64) float64, msg string) *GLMSummary {
+	gs.paramXform = xf
+	gs.messages = append(gs.messages, msg)
+	return gs
+}
+
+// String returns a string representation of a summary table for the model.
+func (gs *GLMSummary) String() string {
+
+	xf := func(x float64) float64 {
+		return x
+	}
+
+	if gs.paramXform != nil {
+		xf = gs.paramXform
+	}
+
+	sum := &statmodel.SummaryTable{
+		Msg: gs.messages,
+	}
 
 	sum.Title = "Generalized linear model analysis"
 
 	sum.Top = []string{
-		fmt.Sprintf("Family:   %s", glm.fam.Name),
-		fmt.Sprintf("Link:     %s", glm.link.Name),
-		fmt.Sprintf("Variance: %s", glm.vari.Name),
-		fmt.Sprintf("Num obs:  %d", glm.DataSet().NumObs()),
-		fmt.Sprintf("Scale:    %f", rslt.scale),
+		fmt.Sprintf("Family:   %s", gs.glm.fam.Name),
+		fmt.Sprintf("Link:     %s", gs.glm.link.Name),
+		fmt.Sprintf("Variance: %s", gs.glm.vari.Name),
+		fmt.Sprintf("Num obs:  %d", gs.glm.DataSet().NumObs()),
+		fmt.Sprintf("Scale:    %f", gs.results.scale),
 	}
 
-	l1 := glm.l1wgt != nil
+	l1 := gs.glm.l1wgt != nil
 
 	if !l1 {
-		sum.ColNames = []string{"Variable   ", "Coefficient", "SE", "LCB", "UCB", "Z-score", "P-value"}
+		if gs.paramXform == nil {
+			sum.ColNames = []string{"Variable   ", "Parameter", "SE", "LCB", "UCB", "Z-score", "P-value"}
+		} else {
+			sum.ColNames = []string{"Variable   ", "Parameter", "LCB", "UCB", "P-value"}
+		}
 	} else {
-		sum.ColNames = []string{"Variable   ", "Coefficient"}
+		sum.ColNames = []string{"Variable   ", "Parameter"}
 	}
 
 	// String formatter
@@ -962,24 +988,61 @@ func (rslt *GLMResults) Summary() string {
 	}
 
 	if !l1 {
-		sum.ColFmt = []statmodel.Fmter{fs, fn, fn, fn, fn, fn, fn}
+		if gs.paramXform == nil {
+			sum.ColFmt = []statmodel.Fmter{fs, fn, fn, fn, fn, fn, fn}
+		} else {
+			sum.ColFmt = []statmodel.Fmter{fs, fn, fn, fn, fn}
+		}
 	} else {
 		sum.ColFmt = []statmodel.Fmter{fs, fn}
 	}
 
 	if !l1 {
 		// Create estimate and CI for the parameters
-		var lcb, ucb []float64
-		for j := range rslt.Params() {
-			lcb = append(lcb, rslt.Params()[j]-2*rslt.StdErr()[j])
-			ucb = append(ucb, rslt.Params()[j]+2*rslt.StdErr()[j])
+		var par, lcb, ucb []float64
+		pax := gs.results.Params()
+		for j := range gs.results.Params() {
+			par = append(par, xf(pax[j]))
+			lcb = append(lcb, xf(pax[j]-2*gs.results.StdErr()[j]))
+			ucb = append(ucb, xf(pax[j]+2*gs.results.StdErr()[j]))
 		}
 
-		sum.Cols = []interface{}{rslt.Names(), rslt.Params(), rslt.StdErr(), lcb, ucb,
-			rslt.ZScores(), rslt.PValues()}
+		if gs.paramXform == nil {
+			sum.Cols = []interface{}{
+				gs.results.Names(),
+				par,
+				gs.results.StdErr(),
+				lcb,
+				ucb,
+				gs.results.ZScores(),
+				gs.results.PValues(),
+			}
+		} else {
+			sum.Cols = []interface{}{
+				gs.results.Names(),
+				par,
+				lcb,
+				ucb,
+				gs.results.PValues(),
+			}
+		}
 	} else {
-		sum.Cols = []interface{}{rslt.Names(), rslt.Params()}
+		sum.Cols = []interface{}{
+			gs.results.Names(),
+			gs.results.Params(),
+		}
 	}
 
 	return sum.String()
+}
+
+// Summary displays a summary table of the model results.
+func (rslt *GLMResults) Summary() *GLMSummary {
+
+	glm := rslt.Model().(*GLM)
+
+	return &GLMSummary{
+		glm:     glm,
+		results: rslt,
+	}
 }

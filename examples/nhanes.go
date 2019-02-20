@@ -26,6 +26,7 @@ package main
 
 import (
 	"compress/gzip"
+	"math"
 	"os"
 
 	"github.com/kshedden/dstream/dstream"
@@ -64,14 +65,14 @@ func model1() {
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
 
-	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).Done()
+	f1 := formula.New(fml, dp).Keep("BPXSY1").Done()
 	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
 }
 
 func model2() {
@@ -81,14 +82,14 @@ func model2() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp).RefLevels(reflev).Keep([]string{"BPXSY1"}).Done()
+	f1 := formula.New(fml, dp).RefLevels(reflev).Keep("BPXSY1").Done()
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
 }
 
 func model3() {
@@ -98,14 +99,14 @@ func model3() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1 + RIAGENDR * RIDAGEYR"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp).RefLevels(reflev).Keep([]string{"BPXSY1"}).Done()
+	f1 := formula.New(fml, dp).RefLevels(reflev).Keep("BPXSY1").Done()
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
 }
 
 func model4() {
@@ -115,7 +116,7 @@ func model4() {
 	fml := "1 + RIAGENDR + RIDAGEYR + RIDRETH1"
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
-	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).RefLevels(reflev).Done()
+	f1 := formula.New(fml, dp).Keep("BPXSY1").RefLevels(reflev).Done()
 	f1 = dstream.DropNA(f1)
 	f2 := dstream.MemCopy(f1)
 
@@ -129,7 +130,7 @@ func model4() {
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Norm().Done()
 
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
 }
 
 func model5() {
@@ -151,7 +152,7 @@ func model5() {
 		}
 	}
 
-	f1 := formula.New(fml, dp).Keep([]string{"BPXSY1"}).RefLevels(reflev).Funcs(funcs).Done()
+	f1 := formula.New(fml, dp).Keep("BPXSY1").RefLevels(reflev).Funcs(funcs).Done()
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
@@ -159,42 +160,68 @@ func model5() {
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
+}
+
+// Create a binary indicator of high systolic blood pressure.
+func hbp(v map[string]interface{}, x interface{}) {
+	z := x.([]float64)
+	bp := v["BPXSY1"].([]float64)
+	for i := range bp {
+		if bp[i] >= 130 {
+			z[i] = 1
+		} else {
+			z[i] = 0
+		}
+	}
 }
 
 func model6() {
 
 	dp := getData()
 
-	di := func(v map[string]interface{}, x interface{}) {
-		z := x.([]float64)
-		bp := v["BPXSY1"].([]float64)
-		for i := range bp {
-			if bp[i] >= 130 {
-				z[i] = 1
-			} else {
-				z[i] = 0
-			}
-		}
-	}
-
 	dp.Reset()
-	dp = dstream.Apply(dp, "BP", di, "float64")
+	dp = dstream.Generate(dp, "BP", hbp, "float64")
 	dp = dstream.MemCopy(dp)
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
 
-	f1 := formula.New(fml, dp).Keep([]string{"BP"}).Done()
+	f1 := formula.New(fml, dp).Keep("BP").Done()
 	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
 
-	l1wgt := []float64{0.1, 0.1, 0.1}
-	l2wgt := []float64{1, 1, 1}
+	fam := goglm.NewFamily("binomial")
+	glm := goglm.NewGLM(f3, "BP").Family(fam).Norm().Done()
+	rslt := glm.Fit()
+
+	smry := rslt.Summary()
+	print(smry.String() + "\n\n")
+
+	smry = smry.SetScale(math.Exp, "Parameters are shown as odds ratios")
+	print(smry.String() + "\n\n")
+}
+
+func model7() {
+
+	dp := getData()
+
+	dp.Reset()
+	dp = dstream.Generate(dp, "BP", hbp, "float64")
+	dp = dstream.MemCopy(dp)
+
+	fml := "1 + RIAGENDR + RIDAGEYR"
+
+	f1 := formula.New(fml, dp).Keep("BP").Done()
+	f2 := dstream.MemCopy(f1)
+	f3 := dstream.DropNA(f2)
+
+	l1wgt := []float64{0.1, 10, 0.1}
+	l2wgt := []float64{0, 0, 0}
 
 	fam := goglm.NewFamily("binomial")
 	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).Norm().Done()
 	rslt := glm.Fit()
-	print(rslt.Summary() + "\n\n")
+	print(rslt.Summary().String() + "\n\n")
 }
 
 func main() {
@@ -204,4 +231,5 @@ func main() {
 	model4()
 	model5()
 	model6()
+	model7()
 }

@@ -28,19 +28,12 @@ func vectorClose(x, y []float64, eps float64) bool {
 }
 
 func data1(wgt bool) dstream.Dstream {
-	y := []interface{}{
-		[]float64{0, 1, 3, 2, 1, 1, 0},
-	}
-	x1 := []interface{}{
-		[]float64{1, 1, 1, 1, 1, 1, 1},
-	}
-	x2 := []interface{}{
-		[]float64{4, 1, -1, 3, 5, -5, 3},
-	}
-	w := []interface{}{
-		[]float64{1, 2, 2, 3, 1, 3, 2},
-	}
-	da := [][]interface{}{y, x1, x2}
+
+	y := []float64{0, 1, 3, 2, 1, 1, 0}
+	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
+	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
+	w := []float64{1, 2, 2, 3, 1, 3, 2}
+	da := []interface{}{y, x1, x2}
 	na := []string{"y", "x1", "x2"}
 
 	if wgt {
@@ -48,27 +41,18 @@ func data1(wgt bool) dstream.Dstream {
 		na = append(na, "w")
 	}
 
-	return dstream.NewFromArrays(da, na)
+	return dstream.NewFromFlat(da, na)
 }
 
 func data2(wgt bool) dstream.Dstream {
-	y := []interface{}{
-		[]float64{0, 0, 1, 0, 1, 0, 0},
-	}
-	x1 := []interface{}{
-		[]float64{1, 1, 1, 1, 1, 1, 1},
-	}
-	x2 := []interface{}{
-		[]float64{4, 1, -1, 3, 5, -5, 3},
-	}
-	x3 := []interface{}{
-		[]float64{1, -1, 1, 1, 2, 5, -1},
-	}
-	w := []interface{}{
-		[]float64{2, 1, 3, 3, 4, 2, 3},
-	}
 
-	da := [][]interface{}{y, x1, x2, x3}
+	y := []float64{0, 0, 1, 0, 1, 0, 0}
+	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
+	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
+	x3 := []float64{1, -1, 1, 1, 2, 5, -1}
+	w := []float64{2, 1, 3, 3, 4, 2, 3}
+
+	da := []interface{}{y, x1, x2, x3}
 	na := []string{"y", "x1", "x2", "x3"}
 
 	if wgt {
@@ -76,24 +60,17 @@ func data2(wgt bool) dstream.Dstream {
 		na = append(na, "w")
 	}
 
-	return dstream.NewFromArrays(da, na)
+	return dstream.NewFromFlat(da, na)
 }
 
 func data3(wgt bool) dstream.Dstream {
-	y := []interface{}{
-		[]float64{1, 1, 1, 0, 0, 0, 0},
-	}
-	x1 := []interface{}{
-		[]float64{1, 1, 1, 1, 1, 1, 1},
-	}
-	x2 := []interface{}{
-		[]float64{0, 1, 0, 0, -1, 0, 1},
-	}
-	w := []interface{}{
-		[]float64{3, 3, 2, 3, 1, 3, 2},
-	}
 
-	da := [][]interface{}{y, x1, x2}
+	y := []float64{1, 1, 1, 0, 0, 0, 0}
+	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
+	x2 := []float64{0, 1, 0, 0, -1, 0, 1}
+	w := []float64{3, 3, 2, 3, 1, 3, 2}
+
+	da := []interface{}{y, x1, x2}
 	na := []string{"y", "x1", "x2"}
 
 	if wgt {
@@ -101,27 +78,18 @@ func data3(wgt bool) dstream.Dstream {
 		na = append(na, "w")
 	}
 
-	return dstream.NewFromArrays(da, na)
+	return dstream.NewFromFlat(da, na)
 }
 
 func data4(wgt bool) dstream.Dstream {
-	y := []interface{}{
-		[]float64{3, 1, 5, 4, 2, 3, 6},
-	}
-	x1 := []interface{}{
-		[]float64{1, 1, 1, 1, 1, 1, 1},
-	}
-	x2 := []interface{}{
-		[]float64{4, 1, -1, 3, 5, -5, 3},
-	}
-	x3 := []interface{}{
-		[]float64{1, -1, 1, 1, 2, 5, -1},
-	}
-	w := []interface{}{
-		[]float64{3, 3, 2, 3, 1, 3, 2},
-	}
 
-	da := [][]interface{}{y, x1, x2, x3}
+	y := []float64{3, 1, 5, 4, 2, 3, 6}
+	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
+	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
+	x3 := []float64{1, -1, 1, 1, 2, 5, -1}
+	w := []float64{3, 3, 2, 3, 1, 3, 2}
+
+	da := []interface{}{y, x1, x2, x3}
 	na := []string{"y", "x1", "x2", "x3"}
 
 	if wgt {
@@ -129,27 +97,18 @@ func data4(wgt bool) dstream.Dstream {
 		na = append(na, "w")
 	}
 
-	return dstream.NewFromArrays(da, na)
+	return dstream.NewFromFlat(da, na)
 }
 
 func data5(wgt bool) dstream.Dstream {
-	y := []interface{}{
-		[]float64{0, 1, 3, 2, 1, 1, 0},
-	}
-	x1 := []interface{}{
-		[]float64{1, 1, 1, 1, 1, 1, 1},
-	}
-	x2 := []interface{}{
-		[]float64{4, 1, -1, 3, 5, -5, 3},
-	}
-	off := []interface{}{
-		[]float64{0, 0, 1, 1, 0, 0, 0},
-	}
-	w := []interface{}{
-		[]float64{1, 2, 2, 3, 1, 3, 2},
-	}
 
-	da := [][]interface{}{y, x1, x2, off}
+	y := []float64{0, 1, 3, 2, 1, 1, 0}
+	x1 := []float64{1, 1, 1, 1, 1, 1, 1}
+	x2 := []float64{4, 1, -1, 3, 5, -5, 3}
+	off := []float64{0, 0, 1, 1, 0, 0, 0}
+	w := []float64{1, 2, 2, 3, 1, 3, 2}
+
+	da := []interface{}{y, x1, x2, off}
 	na := []string{"y", "x1", "x2", "off"}
 
 	if wgt {
@@ -157,7 +116,7 @@ func data5(wgt bool) dstream.Dstream {
 		na = append(na, "w")
 	}
 
-	return dstream.NewFromArrays(da, na)
+	return dstream.NewFromFlat(da, na)
 }
 
 // A test problem
@@ -532,7 +491,7 @@ var glm_tests []testprob = []testprob{
 		weight:     false,
 		params:     []float64{-0.465363, 0, 0},
 		scale:      1.0,
-		l1wgt:      []float64{0.7, 0.7, 0.7},
+		l1wgt:      []float64{0.1, 0.1, 0.1},
 		fitmethods: []string{"Coordinate"},
 		normcov:    []bool{false},
 	},
@@ -543,7 +502,7 @@ var glm_tests []testprob = []testprob{
 		weight:     false,
 		params:     []float64{-0.737198, 0.024176, 0.017089},
 		scale:      1.0,
-		l1wgt:      []float64{0.35, 0.35, 0.35},
+		l1wgt:      []float64{0.05, 0.05, 0.05},
 		fitmethods: []string{"Coordinate"},
 		normcov:    []bool{false},
 	},
@@ -554,9 +513,21 @@ var glm_tests []testprob = []testprob{
 		weight:     false,
 		params:     []float64{-0.89149010, 0.0312166489, 0.0485293176},
 		scale:      1.0,
-		l1wgt:      []float64{0.07, 0.07, 0.07},
+		l1wgt:      []float64{0.01, 0.01, 0.01},
 		fitmethods: []string{"Coordinate"},
 		normcov:    []bool{true},
+	},
+	{
+		family:     NewFamily("binomial"),
+		start:      nil,
+		data:       data2(false),
+		weight:     false,
+		params:     []float64{-0.988257, 0.078329, 0.121922},
+		scale:      1.0,
+		l1wgt:      []float64{0.02, 0.02, 0.02},
+		l2wgt:      []float64{0.02, 0.02, 0.02},
+		fitmethods: []string{"Coordinate"},
+		normcov:    []bool{false},
 	},
 }
 
