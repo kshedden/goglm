@@ -221,7 +221,8 @@ func model7() {
 	fam := goglm.NewFamily("binomial")
 	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).Norm().Done()
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+	smry := rslt.Summary()
+	print(smry.String() + "\n\n")
 }
 
 func main() {
