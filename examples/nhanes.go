@@ -26,6 +26,7 @@ package main
 
 import (
 	"compress/gzip"
+	"fmt"
 	"math"
 	"os"
 
@@ -61,6 +62,13 @@ func getData() dstream.Dstream {
 
 func model1() {
 
+	msg := `
+Linear regression (ordinary least squares) for systolic blood pressure,
+using two predictor variables: gender (RIAGENDR) and age (RIDAGEYR).
+Gender is treated as a quantitative variable and is coded as 1 for
+males and 2 for females.
+`
+
 	dp := getData()
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
@@ -72,10 +80,18 @@ func model1() {
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(rslt.Summary().String() + "\n\n")
 }
 
 func model2() {
+
+	msg := `
+Linear regression (ordinary least squares) for systolic blood pressure,
+including ethnicity as a categorical covariate, using level 5 (other
+race/multiracial) as the reference category.
+`
 
 	dp := getData()
 
@@ -89,10 +105,19 @@ func model2() {
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(rslt.Summary().String() + "\n\n")
 }
 
 func model3() {
+
+	msg := `
+Linear regression (ordinary least squares) for systolic blood pressure,
+including gender, age, ethnicity, and the interaction between gender
+and age as covariates.  Ethnicity is a categorical covariate with level
+5 (other race/multiracial) as the reference category.
+`
 
 	dp := getData()
 
@@ -106,10 +131,18 @@ func model3() {
 	fam := goglm.NewFamily("gaussian")
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(rslt.Summary().String() + "\n\n")
 }
 
 func model4() {
+
+	msg := `
+Regularized least squares regression (Lasso regression) for systolic
+blood pressure, using equal penalty weights for all covariates and
+zero penalty for the intercept.
+`
 
 	dp := getData()
 
@@ -130,10 +163,17 @@ func model4() {
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Norm().Done()
 
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(rslt.Summary().String() + "\n\n")
 }
 
 func model5() {
+
+	msg := `
+Linear regression with systolic blood pressure as the outcome,
+using a square root transform in the formula.
+`
 
 	dp := getData()
 
@@ -160,7 +200,9 @@ func model5() {
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 
 	rslt := glm.Fit()
-	print(rslt.Summary().String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(rslt.Summary().String() + "\n\n")
 }
 
 // Create a binary indicator of high systolic blood pressure.
@@ -177,6 +219,11 @@ func hbp(v map[string]interface{}, x interface{}) {
 }
 
 func model6() {
+
+	msg := `
+Logistic regression using high blood pressure status (binary) as
+the dependent variable, and gender and age as predictors.
+`
 
 	dp := getData()
 
@@ -195,13 +242,21 @@ func model6() {
 	rslt := glm.Fit()
 
 	smry := rslt.Summary()
-	print(smry.String() + "\n\n")
+	fmt.Printf(msg + "\n")
+	fmt.Printf(smry.String() + "\n\n")
 
 	smry = smry.SetScale(math.Exp, "Parameters are shown as odds ratios")
-	print(smry.String() + "\n\n")
+
+	fmt.Printf(smry.String() + "\n\n")
 }
 
 func model7() {
+
+	msg := `
+Elastic net penalized logistic regression for high blood pressure
+status, with L1 and L2 penalties.  Age and gender are the predictor
+variables.
+`
 
 	dp := getData()
 
@@ -215,14 +270,16 @@ func model7() {
 	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
 
-	l1wgt := []float64{0.1, 10, 0.1}
-	l2wgt := []float64{0, 0, 0}
+	l1wgt := []float64{0, 1, 0}
+	l2wgt := []float64{0.01, 0.01, 0.01}
 
 	fam := goglm.NewFamily("binomial")
 	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).Norm().Done()
 	rslt := glm.Fit()
 	smry := rslt.Summary()
-	print(smry.String() + "\n\n")
+
+	fmt.Printf(msg + "\n")
+	fmt.Printf(smry.String() + "\n\n")
 }
 
 func main() {
