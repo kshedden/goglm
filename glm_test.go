@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/kshedden/dstream/dstream"
+	"github.com/kshedden/statmodel"
 )
 
 func scalarClose(x, y, eps float64) bool {
@@ -135,7 +136,7 @@ type testprob struct {
 	l2wgt      []float64
 	l1wgt      []float64
 	fitmethods []string
-	normcov    []bool
+	scaletype  []statmodel.ScaleType
 }
 
 var glm_tests []testprob = []testprob{
@@ -150,7 +151,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -19.14926021670413,
 		scale:      1.0414236578435769,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -165,7 +166,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -11.876495505764467,
 		scale:      0.25882586275287583,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -178,7 +179,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -11.862285137866323,
 		scale:      0.26589147286821707,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -191,7 +192,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -19.00280708909699,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -206,7 +207,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -13.098177137990557,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -219,7 +220,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -13.768882387425702,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -233,7 +234,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -11.17418536789415,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -246,7 +247,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -11.245509472906111,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("binomial"),
@@ -260,7 +261,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -3.9607532681097091,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -272,7 +273,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -4.53963553741,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -284,7 +285,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -9.1041354864426385,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("poisson"),
@@ -298,7 +299,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -4.3466061504389559,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -310,7 +311,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -5.4060591253,
 		scale:      1,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -322,7 +323,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -9.621454,
 		scale:      1.21752988048,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("gaussian"),
@@ -336,7 +337,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -4.596270,
 		scale:      0.334176605228,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("gaussian"),
@@ -348,7 +349,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -4.944550,
 		scale:      0.32,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("invgaussian"),
@@ -363,7 +364,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -33.701849656107399,
 		scale:      0.074887605672913735,
 		fitmethods: []string{"IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
 		family: NewFamily("gamma"),
@@ -378,7 +379,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -31.687753839200358,
 		scale:      0.25143442760931506,
 		fitmethods: []string{"IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
 		family: NewFamily("quasipoisson"),
@@ -393,7 +394,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -13.098177137990557,
 		scale:      0.7780190501841399,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
 		family: NewNegBinomFamily(1, NewLink("log")),
@@ -408,7 +409,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -39.875709730019153,
 		scale:      0.19468567690459238,
 		fitmethods: []string{"IRLS"}, // Gradient does not converge
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
 		family: NewNegBinomFamily(1.5, NewLink("log")),
@@ -424,7 +425,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -42.669972197288509,
 		scale:      0.14064363313622641,
 		fitmethods: []string{"IRLS"}, // Gradient does not converge
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -438,7 +439,7 @@ var glm_tests []testprob = []testprob{
 		ll:         -15.259195632772048,
 		scale:      1.0,
 		fitmethods: []string{"Gradient", "IRLS"},
-		normcov:    []bool{false, true},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -449,7 +450,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l2wgt:      []float64{0.1, 0.1},
 		fitmethods: []string{"Gradient"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("poisson"),
@@ -460,7 +461,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
 		fitmethods: []string{"Gradient"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -471,7 +472,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0.2, 0.2},
 		fitmethods: []string{"Gradient"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -482,7 +483,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l2wgt:      []float64{0.2, 0, 0.1},
 		fitmethods: []string{"Gradient"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -493,7 +494,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l1wgt:      []float64{0.1, 0.1, 0.1},
 		fitmethods: []string{"Coordinate"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -504,7 +505,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l1wgt:      []float64{0.05, 0.05, 0.05},
 		fitmethods: []string{"Coordinate"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -515,7 +516,7 @@ var glm_tests []testprob = []testprob{
 		scale:      1.0,
 		l1wgt:      []float64{0.01, 0.01, 0.01},
 		fitmethods: []string{"Coordinate"},
-		normcov:    []bool{true},
+		scaletype:  []statmodel.ScaleType{statmodel.L2Norm},
 	},
 	{
 		family:     NewFamily("binomial"),
@@ -527,14 +528,14 @@ var glm_tests []testprob = []testprob{
 		l1wgt:      []float64{0.02, 0.02, 0.02},
 		l2wgt:      []float64{0.02, 0.02, 0.02},
 		fitmethods: []string{"Coordinate"},
-		normcov:    []bool{false},
+		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 }
 
 func TestFit(t *testing.T) {
 
 	for _, ds := range glm_tests {
-		for _, normcov := range ds.normcov {
+		for _, scaletype := range ds.scaletype {
 			for _, fmeth := range ds.fitmethods {
 
 				var glm *GLM
@@ -554,9 +555,7 @@ func TestFit(t *testing.T) {
 					glm = glm.L2Weight(ds.l2wgt)
 				}
 
-				if normcov {
-					glm = glm.Norm()
-				}
+				glm = glm.CovariateScale(scaletype)
 
 				if len(ds.start) > 0 {
 					glm = glm.Start(ds.start)

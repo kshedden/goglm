@@ -33,6 +33,7 @@ import (
 	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/dstream/formula"
 	"github.com/kshedden/goglm"
+	"github.com/kshedden/statmodel"
 )
 
 func getData() dstream.Dstream {
@@ -160,7 +161,7 @@ zero penalty for the intercept.
 	}
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).Norm().Done()
+	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).CovariateScale(statmodel.L2Norm).Done()
 
 	rslt := glm.Fit()
 
@@ -238,7 +239,7 @@ the dependent variable, and gender and age as predictors.
 	f3 := dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("binomial")
-	glm := goglm.NewGLM(f3, "BP").Family(fam).Norm().Done()
+	glm := goglm.NewGLM(f3, "BP").Family(fam).CovariateScale(statmodel.L2Norm).Done()
 	rslt := glm.Fit()
 
 	smry := rslt.Summary()
@@ -274,7 +275,7 @@ variables.
 	l2wgt := []float64{0.01, 0.01, 0.01}
 
 	fam := goglm.NewFamily("binomial")
-	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).Norm().Done()
+	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).CovariateScale(statmodel.L2Norm).Done()
 	rslt := glm.Fit()
 	smry := rslt.Summary()
 

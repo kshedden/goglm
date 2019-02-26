@@ -4,9 +4,11 @@ package goglm
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"gonum.org/v1/gonum/floats"
+	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/optimize"
 
 	"github.com/kshedden/dstream/dstream"
@@ -60,9 +62,14 @@ type GLM struct {
 	// calculations are done on normalized covariates.
 	xn []float64
 
-	// If norm=true, calculations are done on normalized
-	// covariates.
-	norm bool
+	// The internal scaling of the covariates.
+	scaletype statmodel.ScaleType
+
+	// Optimization settings
+	settings *optimize.Settings
+
+	// Optimization method
+	method optimize.Method
 }
 
 // GLMParams represents the model parameters for a GLM.
@@ -132,9 +139,10 @@ func NewGLM(data dstream.Dstream, yname string) *GLM {
 	}
 }
 
-// If true, covariates are internally normalized.
-func (glm *GLM) Norm() *GLM {
-	glm.norm = true
+// CovariateScale determines the type of internal scaling of the covariates.
+// The default is to do no rescaling of covariates.
+func (glm *GLM) CovariateScale(scaletype statmodel.ScaleType) *GLM {
+	glm.scaletype = scaletype
 	return glm
 }
 
@@ -168,16 +176,16 @@ func (glm *GLM) Family(fam *Family) *GLM {
 }
 
 // L2Weight set the L2 weights used for ridge-regularization.  When
-// using L2 weights it is advisable to call Norm as well so that the
-// weights have equal impacts on the covariates.
+// using L2 weights it is advisable to call ScaleType as well so that
+// the weights have equal impacts on the covariates.
 func (glm *GLM) L2Weight(l2wgt []float64) *GLM {
 	glm.l2wgt = l2wgt
 	return glm
 }
 
 // L1Weight set the L1 weights used for ridge-regularization.  When
-// using L1 weights it is advisable to call Norm as well so that the
-// weights have equal impacts on the covariates.
+// using L1 weights it is advisable to call ScaleType as well so that
+// the weights have equal impacts on the covariates.
 func (glm *GLM) L1Weight(l1wgt []float64) *GLM {
 	glm.l1wgt = l1wgt
 	return glm
@@ -219,6 +227,7 @@ func (glm *GLM) findvars() {
 	glm.offsetpos = -1
 	glm.weightpos = -1
 	glm.ypos = -1
+	glm.xpos = glm.xpos[0:0]
 
 	for k, na := range glm.data.Names() {
 		switch na {
@@ -277,6 +286,21 @@ func (glm *GLM) setup() {
 	}
 }
 
+func (glm *GLM) check() {
+
+	if glm.l1wgt != nil && len(glm.l1wgt) != len(glm.xpos) {
+		msg := fmt.Sprintf("GLM: The L1 weight vector has length %d, but the model has %d covariates.\n",
+			len(glm.l1wgt), len(glm.xpos))
+		panic(msg)
+	}
+
+	if glm.l2wgt != nil && len(glm.l2wgt) != len(glm.xpos) {
+		msg := fmt.Sprintf("GLM: The L2 weight vector has length %d, but the model has %d covariates.\n",
+			len(glm.l2wgt), len(glm.xpos))
+		panic(msg)
+	}
+}
+
 // Done completes definition of a GLM.  After calling Done the GLM can
 // be fit by calling the Fit method.
 func (glm *GLM) Done() *GLM {
@@ -287,43 +311,62 @@ func (glm *GLM) Done() *GLM {
 	}
 
 	glm.findvars()
-	glm.getnorm()
+	glm.doScale()
 	glm.setup()
 
 	if len(glm.start) == 0 {
 		glm.start = make([]float64, glm.NumParams())
 	}
 
+	glm.check()
+
 	return glm
 }
 
-// If norm=true, getnorm calculates the L2 norms of the covariates.
-func (glm *GLM) getnorm() {
-	// Calculate the L2 norms of the covariates.
-	glm.data.Reset()
-	glm.xn = make([]float64, len(glm.xpos))
-	if glm.norm {
-		for glm.data.Next() {
-			for j, k := range glm.xpos {
-				x := glm.data.GetPos(k).([]float64)
-				for i := range x {
-					glm.xn[j] += x[i] * x[i]
-				}
-			}
-		}
-		for j := range glm.xn {
-			glm.xn[j] = math.Sqrt(glm.xn[j])
-			if glm.xn[j] == 0 {
-				names := glm.data.Names()
-				name := names[glm.xpos[j]]
-				msg := fmt.Sprintf("Variable %s has zero variance.\n", name)
-				panic(msg)
-			}
+// doScale calculates covariate scaling factors.
+func (glm *GLM) doScale() {
 
-		}
-	} else {
+	glm.xn = make([]float64, len(glm.xpos))
+
+	if glm.scaletype == statmodel.NoScale {
 		for k := range glm.xn {
 			glm.xn[k] = 1
+		}
+		return
+	}
+
+	// Calculate the L2 norms of the covariates.
+	glm.data.Reset()
+	var n float64
+	for glm.data.Next() {
+		for j, k := range glm.xpos {
+			x := glm.data.GetPos(k).([]float64)
+			if j == 0 {
+				n += float64(len(x))
+			}
+			for i := range x {
+				glm.xn[j] += x[i] * x[i]
+			}
+		}
+	}
+
+	for j := range glm.xn {
+
+		// Panic if a covariate has no variation.
+		if glm.xn[j] == 0 {
+			names := glm.data.Names()
+			name := names[glm.xpos[j]]
+			msg := fmt.Sprintf("Variable %s has zero variance.\n", name)
+			panic(msg)
+		}
+
+		switch glm.scaletype {
+		case statmodel.L2Norm:
+			glm.xn[j] = math.Sqrt(glm.xn[j])
+		case statmodel.Variance:
+			glm.xn[j] = math.Sqrt(glm.xn[j] / n)
+		default:
+			panic("unknown scaletype")
 		}
 	}
 
@@ -678,7 +721,7 @@ func (glm *GLM) fitRegularized() *GLMResults {
 	}
 
 	checkstep := strings.ToLower(glm.fam.Name) != "gaussian"
-	par := statmodel.FitL1Reg(glm, start, glm.l1wgt, glm.l2wgt, glm.xn, checkstep, glm.norm)
+	par := statmodel.FitL1Reg(glm, start, glm.l1wgt, glm.l2wgt, glm.xn, checkstep)
 	coeff := par.GetCoeff()
 
 	// Since coeff is transformed back to the original scale, we
@@ -767,6 +810,9 @@ func (glm *GLM) Fit() *GLMResults {
 // GLM parameters.
 func (glm *GLM) fitGradient(start []float64) ([]float64, float64) {
 
+	nvar := len(glm.xpos)
+	hessback := make([]float64, nvar*nvar)
+
 	p := optimize.Problem{
 		Func: func(x []float64) float64 {
 			return -glm.LogLike(&GLMParams{x, 1})
@@ -775,19 +821,33 @@ func (glm *GLM) fitGradient(start []float64) ([]float64, float64) {
 			glm.Score(&GLMParams{x, 1}, grad)
 			floats.Scale(-1, grad)
 		},
+		Hess: func(hess mat.MutableSymmetric, x []float64) {
+			glm.Hessian(&GLMParams{x, 1}, statmodel.ObsHess, hessback)
+			for i := 0; i < nvar; i++ {
+				for j := 0; j <= i; j++ {
+					hess.SetSym(i, j, -hessback[i*nvar+j])
+				}
+			}
+		},
 	}
 
-	settings := optimize.DefaultSettings()
-	settings.Recorder = nil
-	settings.GradientThreshold = 1e-8
-	settings.FunctionConverge = &optimize.FunctionConverge{
-		Absolute:   0,
-		Relative:   0,
-		Iterations: 200,
+	if glm.settings == nil {
+		glm.settings = optimize.DefaultSettings()
+		glm.settings.Recorder = nil
+		glm.settings.GradientThreshold = 1e-6
+		glm.settings.FunctionConverge = &optimize.FunctionConverge{
+			Absolute:   1e-12,
+			Iterations: 200,
+		}
 	}
 
-	optrslt, err := optimize.Local(p, start, settings, &optimize.BFGS{})
+	if glm.method == nil {
+		glm.method = &optimize.BFGS{}
+	}
+
+	optrslt, err := optimize.Local(p, start, glm.settings, glm.method)
 	if err != nil {
+		glm.failMessage(optrslt)
 		panic(err)
 	}
 	if err = optrslt.Status.Err(); err != nil {
@@ -802,6 +862,59 @@ func (glm *GLM) fitGradient(start []float64) ([]float64, float64) {
 	fvalue := -optrslt.F
 
 	return params, fvalue
+}
+
+// OptSettings allows the caller to provide an optimization settings
+// value.
+func (glm *GLM) OptSettings(s *optimize.Settings) *GLM {
+	glm.settings = s
+	return glm
+}
+
+// OptMethod sets the optimization method from gonum.Optimize.
+func (glm *GLM) OptMethod(method optimize.Method) *GLM {
+	glm.method = method
+	return glm
+}
+
+// failMessage prints information that can help diagnose optimization failures.
+func (glm *GLM) failMessage(optrslt *optimize.Result) {
+
+	xnames := glm.data.Names()
+
+	os.Stderr.WriteString("Current point and gradient:\n")
+	for j, x := range optrslt.X {
+		os.Stderr.WriteString(fmt.Sprintf("%16.8f %16.8f %s\n", x, optrslt.Gradient[j], xnames[glm.xpos[j]]))
+	}
+
+	// Get the covariates to avoid repeated type assertions
+	glm.data.Reset()
+	xvars := make([][]float64, len(glm.xpos))
+	for glm.data.Next() {
+		for k, j := range glm.xpos {
+			xvars[k] = append(xvars[k], glm.data.GetPos(j).([]float64)...)
+		}
+	}
+
+	// Get the mean and standard deviation of covariates.
+	mn := make([]float64, len(glm.xpos))
+	sd := make([]float64, len(glm.xpos))
+	for j, x := range xvars {
+		mn[j] = floats.Sum(x) / float64(len(x))
+	}
+	for j, x := range xvars {
+		for _, y := range x {
+			u := y - mn[j]
+			sd[j] += u * u
+		}
+		sd[j] /= float64(len(x))
+		sd[j] = math.Sqrt(sd[j])
+	}
+
+	os.Stderr.WriteString("\nCovariate means and standard deviations:\n")
+	for j, m := range mn {
+		os.Stderr.WriteString(fmt.Sprintf("%16.8f %16.8f %s\n", m, sd[j], xnames[glm.xpos[j]]))
+	}
 }
 
 // EstimateScale returns an estimate of the GLM scale parameter at the
