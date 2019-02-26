@@ -7,7 +7,7 @@ fam := goglm.NewFamily("binomial")
 // data is a dstream
 glm := goglm.NewGLM(data, "Y").Family(fam).Done()
 rslt := glm.Fit()
-print(rslt.Summary())
+print(rslt.Summary().String())
 ```
 
 `NewFamily` returns a GLM family (e.g. `Binomial`), and `data` is a
