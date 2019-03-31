@@ -52,7 +52,12 @@ func getData() dstream.Dstream {
 	keepfloat := []string{"RIAGENDR", "RIDAGEYR", "BPXSY1"}
 	keepstring := []string{"RIDRETH1"}
 
-	dst := dstream.FromCSV(gid).SetFloatVars(keepfloat).SetStringVars(keepstring).SetChunkSize(100).HasHeader().Done()
+	tc := &dstream.CSVTypeConf{
+		Float64: keepfloat,
+		String:  keepstring,
+	}
+
+	dst := dstream.FromCSV(gid).TypeConf(tc).SetChunkSize(100).HasHeader().Done()
 	dsc := dstream.MemCopy(dst)
 
 	dsc.Reset()
