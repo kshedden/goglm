@@ -234,7 +234,7 @@ the dependent variable, and gender and age as predictors.
 	dp := getData()
 
 	dp.Reset()
-	dp = dstream.Generate(dp, "BP", hbp, "float64")
+	dp = dstream.Generate(dp, "BP", hbp, dstream.Float64)
 	dp = dstream.MemCopy(dp)
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
@@ -267,7 +267,7 @@ variables.
 	dp := getData()
 
 	dp.Reset()
-	dp = dstream.Generate(dp, "BP", hbp, "float64")
+	dp = dstream.Generate(dp, "BP", hbp, dstream.Float64)
 	dp = dstream.MemCopy(dp)
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
