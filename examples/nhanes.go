@@ -57,7 +57,7 @@ func getData() dstream.Dstream {
 		String:  keepstring,
 	}
 
-	dst := dstream.FromCSV(gid).TypeConf(tc).SetChunkSize(100).HasHeader().Done()
+	dst := dstream.FromCSV(gid).TypeConf(tc).ChunkSize(100).HasHeader().Done()
 	dsc := dstream.MemCopy(dst)
 
 	dsc.Reset()
