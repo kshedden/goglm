@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"gonum.org/v1/gonum/floats"
-	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/optimize"
 
 	"github.com/kshedden/dstream/dstream"
@@ -810,42 +809,31 @@ func (glm *GLM) Fit() *GLMResults {
 // GLM parameters.
 func (glm *GLM) fitGradient(start []float64) ([]float64, float64) {
 
-	nvar := len(glm.xpos)
-	hessback := make([]float64, nvar*nvar)
-
 	p := optimize.Problem{
 		Func: func(x []float64) float64 {
 			return -glm.LogLike(&GLMParams{x, 1})
 		},
-		Grad: func(grad, x []float64) {
+		Grad: func(grad, x []float64) []float64 {
+			if len(grad) != len(x) {
+				grad = make([]float64, len(x))
+			}
 			glm.Score(&GLMParams{x, 1}, grad)
 			floats.Scale(-1, grad)
-		},
-		Hess: func(hess mat.MutableSymmetric, x []float64) {
-			glm.Hessian(&GLMParams{x, 1}, statmodel.ObsHess, hessback)
-			for i := 0; i < nvar; i++ {
-				for j := 0; j <= i; j++ {
-					hess.SetSym(i, j, -hessback[i*nvar+j])
-				}
-			}
+			return grad
 		},
 	}
 
 	if glm.settings == nil {
-		glm.settings = optimize.DefaultSettings()
+		glm.settings = &optimize.Settings{}
 		glm.settings.Recorder = nil
 		glm.settings.GradientThreshold = 1e-6
-		glm.settings.FunctionConverge = &optimize.FunctionConverge{
-			Absolute:   1e-12,
-			Iterations: 200,
-		}
 	}
 
 	if glm.method == nil {
 		glm.method = &optimize.BFGS{}
 	}
 
-	optrslt, err := optimize.Local(p, start, glm.settings, glm.method)
+	optrslt, err := optimize.Minimize(p, start, glm.settings, glm.method)
 	if err != nil {
 		glm.failMessage(optrslt)
 		panic(err)
