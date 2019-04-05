@@ -3,9 +3,11 @@ package goglm
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"os"
 	"strings"
+	"sync"
 
 	"gonum.org/v1/gonum/floats"
 	"gonum.org/v1/gonum/optimize"
@@ -69,6 +71,13 @@ type GLM struct {
 
 	// Optimization method
 	method optimize.Method
+
+	// If not nil, write log messages here
+	log *log.Logger
+
+	// Use concurrent calculations in IRLS if the chunk size is at least
+	// as large as this value.
+	concurrentIRLS int
 }
 
 // GLMParams represents the model parameters for a GLM.
@@ -99,6 +108,13 @@ func (p *GLMParams) Clone() statmodel.Parameter {
 	}
 }
 
+// ReportProgress asks that a progress report be printed after each
+// iteration.
+func (glm *GLM) Log(log *log.Logger) *GLM {
+	glm.log = log
+	return glm
+}
+
 // NumParams returns the number of covariates in the model.
 func (glm *GLM) NumParams() int {
 	return len(glm.xpos)
@@ -113,6 +129,13 @@ func (glm *GLM) Xpos() []int {
 // DataSet returns the data stream that is used to fit the model.
 func (glm *GLM) DataSet() dstream.Dstream {
 	return glm.data
+}
+
+// ConcurrentIRLS sets the minimum chunk size for which concurrent
+// calculations are used during IRLS.
+func (glm *GLM) ConcurrentIRLS(n int) *GLM {
+	glm.concurrentIRLS = n
+	return glm
 }
 
 // GLMResults describes the results of a fitted generalized linear model.
@@ -132,9 +155,10 @@ func (rslt *GLMResults) Scale() float64 {
 func NewGLM(data dstream.Dstream, yname string) *GLM {
 
 	return &GLM{
-		data:      data,
-		yname:     yname,
-		fitMethod: "IRLS",
+		data:           data,
+		yname:          yname,
+		fitMethod:      "IRLS",
+		concurrentIRLS: 1000,
 	}
 }
 
@@ -561,12 +585,17 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 	var linpred, mn, lderiv, lderiv2, va, vad, fac, sfac []float64
 
 	nvar := glm.NumParams()
+	xdat := make([][]float64, nvar)
 	glm.data.Reset()
 	zero(hess)
 
 	for glm.data.Next() {
 
 		var yda, wgts, off []float64
+
+		for j, k := range glm.xpos {
+			xdat[j] = glm.data.GetPos(k).([]float64)
+		}
 
 		yda = glm.data.GetPos(glm.ypos).([]float64)
 		n := len(yda)
@@ -588,9 +617,8 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 
 		// Update the linear predictor
 		zero(linpred)
-		for j, k := range glm.xpos {
-			xda := glm.data.GetPos(k).([]float64)
-			floats.AddScaled(linpred, coeff[j], xda)
+		for j := range glm.xpos {
+			floats.AddScaled(linpred, coeff[j], xdat[j])
 		}
 		if off != nil {
 			floats.Add(linpred, off)
@@ -626,21 +654,13 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 		}
 
 		// Update the Hessian matrix
-		// TODO: use blas/floats
-		for j1, k1 := range glm.xpos {
-			x1 := glm.data.GetPos(k1).([]float64)
-			for j2, k2 := range glm.xpos {
-				x2 := glm.data.GetPos(k2).([]float64)
-				if wgts == nil {
-					for i, _ := range x1 {
-						hess[j1*nvar+j2] -= fac[i] * x1[i] * x2[i]
-					}
-				} else {
-					for i, _ := range x1 {
-						hess[j1*nvar+j2] -= wgts[i] * fac[i] * x1[i] * x2[i]
-					}
-				}
-			}
+		glm.hessXprod(xdat, fac, wgts, hess)
+	}
+
+	// Fill in the upper triangle
+	for j1 := range glm.xpos {
+		for j2 := 0; j2 < j1; j2++ {
+			hess[j2*nvar+j1] = hess[j1*nvar+j2]
 		}
 	}
 
@@ -651,6 +671,36 @@ func (glm *GLM) Hessian(param statmodel.Parameter, ht statmodel.HessType, hess [
 			hess[j*nvar+j] -= nobs * v
 		}
 	}
+}
+
+func (glm *GLM) hessXprod(xdat [][]float64, fac, wgts, hess []float64) {
+
+	nvar := len(xdat)
+
+	var wg sync.WaitGroup
+
+	for j1 := range glm.xpos {
+		for j2 := 0; j2 <= j1; j2++ {
+
+			wg.Add(1)
+			go func(j1, j2 int) {
+				x1 := xdat[j1]
+				x2 := xdat[j2]
+				if wgts == nil {
+					for i := range x1 {
+						hess[j1*nvar+j2] -= fac[i] * x1[i] * x2[i]
+					}
+				} else {
+					for i := range x1 {
+						hess[j1*nvar+j2] -= wgts[i] * fac[i] * x1[i] * x2[i]
+					}
+				}
+				wg.Done()
+			}(j1, j2)
+		}
+	}
+
+	wg.Wait()
 }
 
 // Get a focusable version of the model, which can be projected onto
@@ -714,6 +764,10 @@ func (g *GLM) Focus(j int, coeff []float64, l2wgt float64) {
 // fitGradient which invokes gradient optimization.
 func (glm *GLM) fitRegularized() *GLMResults {
 
+	if glm.log != nil {
+		log.Print("Regularized fitting\n")
+	}
+
 	start := &GLMParams{
 		coeff: make([]float64, len(glm.xpos)),
 		scale: 1.0,
@@ -774,8 +828,14 @@ func (glm *GLM) Fit() *GLMResults {
 	var params []float64
 
 	if strings.ToLower(glm.fitMethod) == "gradient" {
+		if glm.log != nil {
+			log.Print("Unregularized fitting using gradient optimization\n")
+		}
 		params, _ = glm.fitGradient(start)
 	} else {
+		if glm.log != nil {
+			log.Print("Unregularized fitting using IRLS\n")
+		}
 		params = glm.fitIRLS(start, maxiter)
 	}
 

@@ -49,12 +49,9 @@ func getData() dstream.Dstream {
 	}
 	defer gid.Close()
 
-	keepfloat := []string{"RIAGENDR", "RIDAGEYR", "BPXSY1"}
-	keepstring := []string{"RIDRETH1"}
-
 	tc := &dstream.CSVTypeConf{
-		Float64: keepfloat,
-		String:  keepstring,
+		Float64: []string{"RIAGENDR", "RIDAGEYR", "BPXSY1"},
+		String:  []string{"RIDRETH1"},
 	}
 
 	dst := dstream.FromCSV(gid).TypeConf(tc).ChunkSize(100).HasHeader().Done()
@@ -84,7 +81,7 @@ males and 2 for females.
 	f3 := dstream.DropNA(f2)
 
 	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).Done()
+	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).ReportProgress().Done()
 	rslt := glm.Fit()
 
 	fmt.Printf(msg + "\n")

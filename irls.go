@@ -2,8 +2,10 @@ package goglm
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"strings"
+	"sync"
 
 	"gonum.org/v1/gonum/floats"
 	"gonum.org/v1/gonum/mat"
@@ -11,6 +13,7 @@ import (
 
 func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 
+	// TODO make this configurable
 	dtol := 1e-8
 
 	var linpred []float64
@@ -35,11 +38,17 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 
 	var dev []float64
 
+	// IRLS iterations
 	for iter := 0; iter < maxiter; iter++ {
-		glm.data.Reset()
+
 		zero(xtx)
 		zero(xty)
 		var devi float64
+
+		xdat := make([][]float64, len(glm.xpos))
+
+		// Loop over data chunks
+		glm.data.Reset()
 		for glm.data.Next() {
 
 			var yda, wgt, off []float64
@@ -54,6 +63,10 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 				off = glm.data.GetPos(glm.offsetpos).([]float64)
 			}
 
+			for j, k := range glm.xpos {
+				xdat[j] = glm.data.GetPos(k).([]float64)
+			}
+
 			// Allocations
 			linpred = resize(linpred, n)
 			mn = resize(mn, n)
@@ -63,12 +76,10 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 			adjy = resize(adjy, n)
 
 			zero(linpred)
-			for j, k := range glm.xpos {
-				xda := glm.data.GetPos(k).([]float64)
-				for i, x := range xda {
-					linpred[i] += params[j] * x / glm.xn[j]
-				}
+			for j := range glm.xpos {
+				floats.AddScaled(linpred, params[j]/glm.xn[j], xdat[j])
 			}
+
 			if off != nil {
 				floats.AddTo(linpred, linpred, off)
 			}
@@ -97,31 +108,24 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 
 			// Create an adjusted response for WLS
 			if off == nil {
-				for i, _ := range yda {
+				for i := range yda {
 					adjy[i] = linpred[i] + lderiv[i]*(yda[i]-mn[i])
 				}
 			} else {
-				for i, _ := range yda {
+				for i := range yda {
 					adjy[i] = linpred[i] + lderiv[i]*(yda[i]-mn[i]) - off[i]
 				}
 			}
 
-			// Update the weighted moment matrices
-			for j1, k1 := range glm.xpos {
+			// Update the weighted moment matrices.  For large data sets, this is by far the
+			// most expensive step.
+			glm.irlsXprod(xdat, adjy, irlsw, xty, xtx)
+		}
 
-				// Update x' w^-1 ya
-				xda := glm.data.GetPos(k1).([]float64)
-				for i, y := range adjy {
-					xty[j1] += y * xda[i] * irlsw[i] / glm.xn[j1]
-				}
-
-				// Update x' w^-1 x
-				for j2, k2 := range glm.xpos {
-					xdb := glm.data.GetPos(k2).([]float64)
-					for i, _ := range xda {
-						xtx[j1*nvar+j2] += xda[i] * xdb[i] * irlsw[i] / (glm.xn[j1] * glm.xn[j2])
-					}
-				}
+		// Fill in the unfilled triangle of xtx
+		for j1 := range glm.xpos {
+			for j2 := j1 + 1; j2 < nvar; j2++ {
+				xtx[j1*nvar+j2] = xtx[j2*nvar+j1]
 			}
 		}
 
@@ -137,10 +141,20 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 		}
 		params = nparam.RawVector().Data
 
+		// Check convergence
 		dev = append(dev, devi)
 		if len(dev) > 3 && math.Abs(dev[len(dev)-1]-dev[len(dev)-2]) < dtol {
 			break
 		}
+
+		if glm.log != nil {
+			msg := fmt.Sprintf("Iteration %d: deviance=%.10f\n", iter+1, devi)
+			log.Print(msg)
+		}
+	}
+
+	if glm.log != nil {
+		log.Print("IRLS converged\n")
 	}
 
 	// Undo the scaling
@@ -149,6 +163,76 @@ func (glm *GLM) fitIRLS(start []float64, maxiter int) []float64 {
 	}
 
 	return params
+}
+
+func (glm *GLM) irlsXprod(xdat [][]float64, adjy, irlsw, xty, xtx []float64) {
+
+	if len(adjy) >= glm.concurrentIRLS {
+		glm.irlsXprodConcurrent(xdat, adjy, irlsw, xty, xtx)
+		return
+	}
+
+	nvar := len(xdat)
+
+	for j1 := range glm.xpos {
+
+		// Update x' w^-1 yadj
+		xda := xdat[j1]
+		var u float64
+		for i := range adjy {
+			u += adjy[i] * xda[i] * irlsw[i]
+		}
+		xty[j1] += u / glm.xn[j1]
+
+		// Update x' w^-1 x
+		for j2 := 0; j2 <= j1; j2++ {
+			xdb := xdat[j2]
+			var u float64
+			for i := range xda {
+				u += xda[i] * xdb[i] * irlsw[i]
+			}
+			xtx[j1*nvar+j2] += u / (glm.xn[j1] * glm.xn[j2])
+		}
+	}
+}
+
+// irlsXprodConcurrent is a concurrent version of irlsXprod
+func (glm *GLM) irlsXprodConcurrent(xdat [][]float64, adjy, irlsw, xty, xtx []float64) {
+
+	nvar := len(xdat)
+
+	var wg sync.WaitGroup
+
+	for j1 := range glm.xpos {
+
+		// Update x' w^-1 yadj
+		xda := xdat[j1]
+		wg.Add(1)
+		go func(j1 int) {
+			var u float64
+			for i := range adjy {
+				u += adjy[i] * xda[i] * irlsw[i]
+			}
+			xty[j1] += u / glm.xn[j1]
+			wg.Done()
+		}(j1)
+
+		// Update x' w^-1 x
+		for j2 := 0; j2 <= j1; j2++ {
+			xdb := xdat[j2]
+			wg.Add(1)
+			go func(j1, j2 int) {
+				var u float64
+				for i := range xda {
+					u += xda[i] * xdb[i] * irlsw[i]
+				}
+				xtx[j1*nvar+j2] += u / (glm.xn[j1] * glm.xn[j2])
+				wg.Done()
+			}(j1, j2)
+		}
+	}
+
+	wg.Wait()
 }
 
 func (glm *GLM) startingMu(y []float64, mn []float64) {
