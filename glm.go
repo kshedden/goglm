@@ -13,7 +13,7 @@ import (
 	"gonum.org/v1/gonum/optimize"
 
 	"github.com/kshedden/dstream/dstream"
-	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/statmodel"
 )
 
 // GLM describes a generalized linear model.

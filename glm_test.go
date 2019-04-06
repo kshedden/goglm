@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/kshedden/dstream/dstream"
-	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/statmodel"
 	"gonum.org/v1/gonum/floats"
 )
 
