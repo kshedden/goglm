@@ -11,8 +11,8 @@ print(rslt.Summary().String())
 ```
 
 `NewFamily` returns a GLM family (e.g. `Binomial`), and `data` is a
-"DataProvider" as defined in the
-[statmodel/dataprovider](http://github.com/kshedden/statmodel)
+"Dstream" as defined in the
+[dstream](http://github.com/kshedden/dstream)
 package.  The DataProvider is used to feed data to the GLM in chunks
 using a column-oriented storage layout.  A more extensive illustration
 can be found in the "examples" directory.
@@ -49,8 +49,6 @@ Missing features
 * Marginalization
 
 * Missing data handling
-
-* Multicore optimization
 
 * GEE
 
