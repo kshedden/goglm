@@ -17,8 +17,15 @@ const (
 	NegBinomFamily
 )
 
-// Vec3Func is a function with 3 float64 array arguments.
-type Vec3Func func([]float64, []float64, []float64, float64) float64
+// LogLikeFunc evaluates and returns the log-likelihood for a GLM.  The arguments
+// are the data, the mean values, the weights, and the scale parameter.  The weights
+// may be nil in which case all weights are taken to be 1.
+type LogLikeFunc func([]float64, []float64, []float64, float64) float64
+
+// DevianceFunc evaluates and returns the deviance for a GLM.  The arguments
+// are the data, the mean values, the weights, and the scale parameter.  The weights
+// may be nil in which case all weights are taken to be 1.
+type DevianceFunc func([]float64, []float64, []float64, float64) float64
 
 // Family represents a generalized linear model family.
 type Family struct {
@@ -26,13 +33,14 @@ type Family struct {
 	// The name of the family
 	Name string
 
+	// The numeric code for the family
 	TypeCode FamilyType
 
 	// The log-likelihood function for the family
-	LogLike Vec3Func
+	LogLike LogLikeFunc
 
 	// The deviance function for the family
-	Deviance Vec3Func
+	Deviance DevianceFunc
 
 	// The names of valid links for this family.  The first listed
 	// link should be the canonical link.

@@ -7,23 +7,12 @@ import (
 
 	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/statmodel"
+	"gonum.org/v1/gonum/floats"
 )
 
 func scalarClose(x, y, eps float64) bool {
 	if math.Abs(x-y) > eps {
 		return false
-	}
-	return true
-}
-
-func vectorClose(x, y []float64, eps float64) bool {
-	if len(x) != len(y) {
-		return false
-	}
-	for i, v := range x {
-		if math.Abs(v-y[i]) > eps {
-			return false
-		}
 	}
 	return true
 }
@@ -568,7 +557,7 @@ func TestFit(t *testing.T) {
 				glm = glm.Done()
 				result := glm.Fit()
 
-				if !vectorClose(result.Params(), ds.params, 1e-5) {
+				if !floats.EqualApprox(result.Params(), ds.params, 1e-5) {
 					fmt.Printf("params failed %d %d %d:\n", jd, js, jf)
 					fmt.Printf("%v\n", result.Params())
 					t.Fail()
@@ -589,12 +578,12 @@ func TestFit(t *testing.T) {
 					t.Fail()
 				}
 
-				if !vectorClose(result.StdErr(), ds.stderr, 1e-5) {
+				if !floats.EqualApprox(result.StdErr(), ds.stderr, 1e-5) {
 					fmt.Printf("stderr failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}
 
-				if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
+				if !floats.EqualApprox(result.VCov(), ds.vcov, 1e-5) {
 					fmt.Printf("vcov failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}

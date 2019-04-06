@@ -6,6 +6,7 @@ import (
 
 	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/statmodel"
+	"gonum.org/v1/gonum/floats"
 )
 
 type ptlsh struct {
@@ -180,19 +181,19 @@ func TestLLScoreHess(t *testing.T) {
 		}
 
 		glm.Score(&GLMParams{ps.params, 1}, score)
-		if !vectorClose(score, ps.score, 1e-5) {
+		if !floats.EqualApprox(score, ps.score, 1e-5) {
 			fmt.Printf("Score %d:\n", pj)
 			t.Fail()
 		}
 
 		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ExpHess, hess)
-		if !vectorClose(hess, ps.exphess, 1e-5) {
+		if !floats.EqualApprox(hess, ps.exphess, 1e-5) {
 			fmt.Printf("Hessian %d:\n", pj)
 			t.Fail()
 		}
 
 		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ObsHess, hess)
-		if !vectorClose(hess, ps.obshess, 1e-5) {
+		if !floats.EqualApprox(hess, ps.obshess, 1e-5) {
 			fmt.Printf("Hessian %d:\n", pj)
 			t.Fail()
 		}
