@@ -1,16 +1,20 @@
+
+__This repository is no longer being actively developed.  See github.com/kshedden/statmodel/glm for the new version of this package.__
+
 __goglm__ supports estimation of generalized linear models in Go.
 
 A basic usage example is as follows:
 
 ```
-fam := goglm.NewFamily(goglm.Binomial)
+fam := goglm.NewFamily(goglm.BinomialFamily)
 // data is a dstream
 glm := goglm.NewGLM(data, "Y").Family(fam).Done()
 rslt := glm.Fit()
 print(rslt.Summary().String())
 ```
 
-`NewFamily` returns a GLM family (e.g. `Binomial`), and `data` is a
+`NewFamily` returns a GLM family (here it is the `Binomial` family),
+and `data` is a
 "Dstream" as defined in the [dstream](http://github.com/kshedden/dstream)
 package.  The Dstream is used to feed data to the GLM in chunks
 using a column-oriented storage layout.  A more extensive illustration
