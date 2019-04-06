@@ -141,7 +141,7 @@ type testprob struct {
 
 var glm_tests []testprob = []testprob{
 	{
-		family:     NewFamily("gaussian"),
+		family:     NewFamily(GaussianFamily),
 		start:      nil,
 		data:       data1(true),
 		weight:     true,
@@ -154,7 +154,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("gaussian"),
+		family: NewFamily(GaussianFamily),
 		start:  nil,
 		data:   data2(true),
 		weight: true,
@@ -169,7 +169,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("gaussian"),
+		family:     NewFamily(GaussianFamily),
 		start:      nil,
 		data:       data3(true),
 		weight:     true,
@@ -182,7 +182,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data1(true),
 		weight:     true,
@@ -195,7 +195,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("poisson"),
+		family: NewFamily(PoissonFamily),
 		start:  nil,
 		data:   data2(true),
 		weight: true,
@@ -210,7 +210,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data3(true),
 		weight:     true,
@@ -223,7 +223,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("binomial"),
+		family: NewFamily(BinomialFamily),
 		start:  nil,
 		data:   data2(true),
 		weight: true,
@@ -237,7 +237,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data3(true),
 		weight:     true,
@@ -250,7 +250,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("binomial"),
+		family: NewFamily(BinomialFamily),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{-1.650145, 0.190136, 0.344331},
@@ -264,7 +264,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{-0.434175, 0.868350},
@@ -276,7 +276,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data1(false),
 		params:     []float64{0.213361, -0.081530},
@@ -288,7 +288,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("poisson"),
+		family: NewFamily(PoissonFamily),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{-1.792499, 0.128696, 0.241203},
@@ -302,7 +302,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{-0.962424, 0.481212},
@@ -314,7 +314,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("gaussian"),
+		family:     NewFamily(GaussianFamily),
 		start:      nil,
 		data:       data1(false),
 		params:     []float64{1.290837, -0.103586},
@@ -326,7 +326,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("gaussian"),
+		family: NewFamily(GaussianFamily),
 		start:  nil,
 		data:   data2(false),
 		params: []float64{0.154198, 0.038670, 0.066739},
@@ -340,7 +340,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("gaussian"),
+		family:     NewFamily(GaussianFamily),
 		start:      nil,
 		data:       data3(false),
 		params:     []float64{0.4, 0.2},
@@ -352,7 +352,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("invgaussian"),
+		family: NewFamily(InvGaussianFamily),
 		start:  []float64{0.1, 0, 0},
 		data:   data4(true),
 		weight: true,
@@ -367,7 +367,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm},
 	},
 	{
-		family: NewFamily("gamma"),
+		family: NewFamily(GammaFamily),
 		start:  []float64{0.3, 0.0, 0.0},
 		data:   data4(true),
 		weight: true,
@@ -382,7 +382,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
-		family: NewFamily("quasipoisson"),
+		family: NewFamily(QuasiPoissonFamily),
 		start:  nil,
 		data:   data2(true),
 		weight: true,
@@ -397,7 +397,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
-		family: NewNegBinomFamily(1, NewLink("log")),
+		family: NewNegBinomFamily(1, NewLink(LogLink)),
 		start:  nil,
 		data:   data4(true),
 		weight: true,
@@ -412,7 +412,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
-		family: NewNegBinomFamily(1.5, NewLink("log")),
+		family: NewNegBinomFamily(1.5, NewLink(LogLink)),
 		alpha:  1.5,
 		start:  nil,
 		data:   data4(true),
@@ -428,7 +428,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data5(true),
 		weight:     true,
@@ -442,7 +442,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale, statmodel.L2Norm, statmodel.Variance},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data1(true),
 		weight:     true,
@@ -453,7 +453,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("poisson"),
+		family:     NewFamily(PoissonFamily),
 		start:      nil,
 		data:       data2(true),
 		weight:     true,
@@ -464,7 +464,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(true),
 		weight:     true,
@@ -475,7 +475,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(true),
 		weight:     true,
@@ -486,7 +486,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(false),
 		weight:     false,
@@ -497,7 +497,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(false),
 		weight:     false,
@@ -508,7 +508,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.NoScale},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(false),
 		weight:     false,
@@ -519,7 +519,7 @@ var glm_tests []testprob = []testprob{
 		scaletype:  []statmodel.ScaleType{statmodel.L2Norm},
 	},
 	{
-		family:     NewFamily("binomial"),
+		family:     NewFamily(BinomialFamily),
 		start:      nil,
 		data:       data2(false),
 		weight:     false,
@@ -534,9 +534,9 @@ var glm_tests []testprob = []testprob{
 
 func TestFit(t *testing.T) {
 
-	for _, ds := range glm_tests {
-		for _, scaletype := range ds.scaletype {
-			for _, fmeth := range ds.fitmethods {
+	for jd, ds := range glm_tests {
+		for js, scaletype := range ds.scaletype {
+			for jf, fmeth := range ds.fitmethods {
 
 				var glm *GLM
 				glm = NewGLM(ds.data, "y")
@@ -569,13 +569,13 @@ func TestFit(t *testing.T) {
 				result := glm.Fit()
 
 				if !vectorClose(result.Params(), ds.params, 1e-5) {
-					print("params\n")
+					fmt.Printf("params failed %d %d %d:\n", jd, js, jf)
 					fmt.Printf("%v\n", result.Params())
 					t.Fail()
 				}
 
 				if math.Abs(result.Scale()-ds.scale) > 1e-5 {
-					print("scale\n")
+					fmt.Printf("scale failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}
 
@@ -585,17 +585,17 @@ func TestFit(t *testing.T) {
 				}
 
 				if !scalarClose(result.LogLike(), ds.ll, 1e-5) {
-					print("loglike\n")
+					fmt.Printf("loglike failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}
 
 				if !vectorClose(result.StdErr(), ds.stderr, 1e-5) {
-					print("stderr")
+					fmt.Printf("stderr failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}
 
 				if !vectorClose(result.VCov(), ds.vcov, 1e-5) {
-					print("vcov")
+					fmt.Printf("vcov failed: %d %d %d\n", jd, js, jf)
 					t.Fail()
 				}
 
@@ -608,8 +608,8 @@ func TestFit(t *testing.T) {
 
 func TestSetLink(t *testing.T) {
 
-	fam := NewFamily("binomial")
-	for _, v := range []string{"logit", "LoGiT", "log", "identity"} {
+	fam := NewFamily(BinomialFamily)
+	for _, v := range []LinkType{LogitLink, LogLink, IdentityLink} {
 		if !fam.IsValidLink(NewLink(v)) {
 			t.Fail()
 		}

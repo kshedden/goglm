@@ -3,7 +3,18 @@ package goglm
 import (
 	"fmt"
 	"math"
-	"strings"
+)
+
+type FamilyType uint8
+
+const (
+	BinomialFamily FamilyType = iota
+	PoissonFamily
+	QuasiPoissonFamily
+	GaussianFamily
+	GammaFamily
+	InvGaussianFamily
+	NegBinomFamily
 )
 
 // Vec3Func is a function with 3 float64 array arguments.
@@ -15,6 +26,8 @@ type Family struct {
 	// The name of the family
 	Name string
 
+	TypeCode FamilyType
+
 	// The log-likelihood function for the family
 	LogLike Vec3Func
 
@@ -23,7 +36,7 @@ type Family struct {
 
 	// The names of valid links for this family.  The first listed
 	// link should be the canonical link.
-	validLinks []string
+	validLinks []LinkType
 
 	// The link in use by the family, only specified for negative binomial
 	link *Link
@@ -35,70 +48,74 @@ type Family struct {
 // NewFamily returns a family object corresponding to the given name.
 // Supported names are binomial, gamma, gaussian, invgaussian,
 // poisson, quasipoisson.
-func NewFamily(name string) *Family {
+func NewFamily(fam FamilyType) *Family {
 
-	name = strings.ToLower(name)
-
-	switch name {
-	case "poisson":
+	switch fam {
+	case PoissonFamily:
 		return &poisson
-	case "quasipoisson":
+	case QuasiPoissonFamily:
 		return &quasiPoisson
-	case "binomial":
+	case BinomialFamily:
 		return &binomial
-	case "gaussian":
+	case GaussianFamily:
 		return &gaussian
-	case "gamma":
+	case GammaFamily:
 		return &gamma
-	case "invgaussian":
+	case InvGaussianFamily:
 		return &invGaussian
 	default:
-		msg := fmt.Sprintf("Unknown family name: %s\n", name)
+		msg := fmt.Sprintf("Unknown family: %v\n", fam)
 		panic(msg)
 	}
 }
 
 var poisson = Family{
 	Name:       "Poisson",
+	TypeCode:   PoissonFamily,
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []string{"log", "identity"},
+	validLinks: []LinkType{LogLink, IdentityLink},
 }
 
 // QuasiPoisson is the same as Poisson, except that the scale parameter is estimated.
 var quasiPoisson = Family{
 	Name:       "QuasiPoisson",
+	TypeCode:   QuasiPoissonFamily,
 	LogLike:    poissonLogLike,
 	Deviance:   poissonDeviance,
-	validLinks: []string{"log", "identity"},
+	validLinks: []LinkType{LogLink, IdentityLink},
 }
 
 var binomial = Family{
 	Name:       "Binomial",
+	TypeCode:   BinomialFamily,
 	LogLike:    binomialLogLike,
 	Deviance:   binomialDeviance,
-	validLinks: []string{"logit", "log", "identity"},
+	validLinks: []LinkType{LogitLink, LogLink, IdentityLink},
 }
 
 var gaussian = Family{
 	Name:       "Gaussian",
+	TypeCode:   GaussianFamily,
 	LogLike:    gaussianLogLike,
 	Deviance:   gaussianDeviance,
-	validLinks: []string{"identity", "log", "recip"},
+	validLinks: []LinkType{IdentityLink, LogLink, RecipLink},
 }
 
 var gamma = Family{
 	Name:       "Gamma",
+	TypeCode:   GammaFamily,
 	LogLike:    gammaLogLike,
 	Deviance:   gammaDeviance,
-	validLinks: []string{"recip", "log", "identity"},
+	validLinks: []LinkType{RecipLink, LogLink, IdentityLink},
 }
 
 var invGaussian = Family{
 	Name:       "InvGaussian",
+	TypeCode:   InvGaussianFamily,
 	LogLike:    invGaussLogLike,
 	Deviance:   invGaussianDeviance,
-	validLinks: []string{"recipsquared", "recip", "log", "identity"},
+	validLinks: []LinkType{RecipSquaredLink, RecipLink, LogLink, IdentityLink},
 }
 
 // IsValidLink returns true or false based on whether the link is
@@ -106,7 +123,7 @@ var invGaussian = Family{
 func (fam *Family) IsValidLink(link *Link) bool {
 
 	for _, q := range fam.validLinks {
-		if strings.ToLower(link.Name) == q {
+		if link.TypeCode == q {
 			return true
 		}
 	}
@@ -347,10 +364,11 @@ func NewNegBinomFamily(alpha float64, link *Link) *Family {
 
 	return &Family{
 		Name:       "NegBinom",
+		TypeCode:   NegBinomFamily,
 		LogLike:    loglike,
 		Deviance:   deviance,
 		alpha:      alpha,
-		validLinks: []string{"log", "identity"},
+		validLinks: []LinkType{LogLink, IdentityLink},
 		link:       link,
 	}
 }

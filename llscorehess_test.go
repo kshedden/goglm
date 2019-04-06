@@ -1,6 +1,7 @@
 package goglm
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kshedden/dstream/dstream"
@@ -23,7 +24,7 @@ type ptlsh struct {
 
 var pq = []ptlsh{
 	{
-		family:  NewFamily("poisson"),
+		family:  NewFamily(PoissonFamily),
 		weight:  false,
 		data:    data1(false),
 		params:  []float64{0, 0},
@@ -33,7 +34,7 @@ var pq = []ptlsh{
 		obshess: []float64{-7, -10, -10, -86},
 	},
 	{
-		family:  NewFamily("poisson"),
+		family:  NewFamily(PoissonFamily),
 		weight:  false,
 		data:    data1(false),
 		params:  []float64{1, 1},
@@ -43,7 +44,7 @@ var pq = []ptlsh{
 		obshess: []float64{-669.4456244, -2944.68298198, -2944.68298198, -13451.94403063},
 	},
 	{
-		family:  NewFamily("binomial"),
+		family:  NewFamily(BinomialFamily),
 		weight:  false,
 		data:    data2(false),
 		params:  []float64{0, 0, 0},
@@ -53,8 +54,8 @@ var pq = []ptlsh{
 		obshess: []float64{-1.75, -2.5, -2, -2.5, -21.5, 3.25, -2, 3.25, -8.5},
 	},
 	{
-		family: NewFamily("binomial"),
-		link:   NewLink("log"),
+		family: NewFamily(BinomialFamily),
+		link:   NewLink(LogLink),
 		weight: true,
 		data:   data2(true),
 		params: []float64{-0.7, 0.1, 0},
@@ -68,7 +69,7 @@ var pq = []ptlsh{
 			518.19721783, 2715.89536808, 941.69106211},
 	},
 	{
-		family: NewFamily("binomial"),
+		family: NewFamily(BinomialFamily),
 		weight: false,
 		data:   data2(false),
 		params: []float64{1, 0, 1},
@@ -80,7 +81,7 @@ var pq = []ptlsh{
 			-0.02006538, 0.08233338, -0.02006538, -1.05735013},
 	},
 	{
-		family: NewFamily("binomial"),
+		family: NewFamily(BinomialFamily),
 		weight: false,
 		data:   data2(false),
 		params: []float64{0, -1, 2},
@@ -92,7 +93,7 @@ var pq = []ptlsh{
 			-2.86562434, -0.68818286, -2.86562434, -1.18506228},
 	},
 	{
-		family: NewFamily("gamma"),
+		family: NewFamily(GammaFamily),
 		weight: true,
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
@@ -106,7 +107,7 @@ var pq = []ptlsh{
 			-1401.23611111, 7981.70833333, -8048.80555556},
 	},
 	{
-		family: NewFamily("invgaussian"),
+		family: NewFamily(InvGaussianFamily),
 		weight: true,
 		data:   data4(true),
 		params: []float64{0.1, 0.1, 0.1},
@@ -120,7 +121,7 @@ var pq = []ptlsh{
 			-112.07064966, 625.27145184, -640.63104102},
 	},
 	{
-		family: NewNegBinomFamily(1.5, NewLink("log")),
+		family: NewNegBinomFamily(1.5, NewLink(LogLink)),
 		alpha:  1.5,
 		weight: true,
 		data:   data4(true),
@@ -135,7 +136,7 @@ var pq = []ptlsh{
 			-9.90658666, -20.30041455, -12.13755286},
 	},
 	{
-		family: NewFamily("poisson"),
+		family: NewFamily(PoissonFamily),
 		weight: true,
 		data:   data5(true),
 		off:    true,
@@ -151,7 +152,7 @@ var pq = []ptlsh{
 
 func TestLLScoreHess(t *testing.T) {
 
-	for _, ps := range pq {
+	for pj, ps := range pq {
 
 		glm := NewGLM(ps.data, "y")
 
@@ -174,21 +175,25 @@ func TestLLScoreHess(t *testing.T) {
 
 		ll := glm.LogLike(&GLMParams{ps.params, 1})
 		if !scalarClose(ll, ps.ll, 1e-5) {
+			fmt.Printf("LogLike %d:\n", pj)
 			t.Fail()
 		}
 
 		glm.Score(&GLMParams{ps.params, 1}, score)
 		if !vectorClose(score, ps.score, 1e-5) {
+			fmt.Printf("Score %d:\n", pj)
 			t.Fail()
 		}
 
 		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ExpHess, hess)
 		if !vectorClose(hess, ps.exphess, 1e-5) {
+			fmt.Printf("Hessian %d:\n", pj)
 			t.Fail()
 		}
 
 		glm.Hessian(&GLMParams{ps.params, 1}, statmodel.ObsHess, hess)
 		if !vectorClose(hess, ps.obshess, 1e-5) {
+			fmt.Printf("Hessian %d:\n", pj)
 			t.Fail()
 		}
 	}

@@ -286,21 +286,20 @@ func (glm *GLM) setup() {
 	}
 
 	if glm.vari == nil {
-		name := strings.ToLower(glm.fam.Name)
-		switch name {
-		case "binomial":
-			glm.vari = NewVariance("binomial")
-		case "poisson":
-			glm.vari = NewVariance("identity")
-		case "quasipoisson":
-			glm.vari = NewVariance("identity")
-		case "gaussian":
-			glm.vari = NewVariance("const")
-		case "gamma":
-			glm.vari = NewVariance("squared")
-		case "invgaussian":
-			glm.vari = NewVariance("cubed")
-		case "negbinom":
+		switch glm.fam.TypeCode {
+		case BinomialFamily:
+			glm.vari = NewVariance(BinomialVar)
+		case PoissonFamily:
+			glm.vari = NewVariance(IdentityVar)
+		case QuasiPoissonFamily:
+			glm.vari = NewVariance(IdentityVar)
+		case GaussianFamily:
+			glm.vari = NewVariance(ConstantVar)
+		case GammaFamily:
+			glm.vari = NewVariance(SquaredVar)
+		case InvGaussianFamily:
+			glm.vari = NewVariance(CubedVar)
+		case NegBinomFamily:
 			glm.vari = NewNegBinomVariance(glm.fam.alpha)
 		default:
 			msg := fmt.Sprintf("Unknown GLM family: %s\n", glm.fam.Name)
@@ -399,38 +398,37 @@ func (glm *GLM) doScale() {
 // SetFamily is a convenience method that sets the family, link, and
 // variance function based on the given family name.  The link and
 // variance functions are set to their canonical values.
-func (glm *GLM) SetFamily(name string) *GLM {
+func (glm *GLM) SetFamily(fam FamilyType) *GLM {
 
-	lname := strings.ToLower(name)
-	switch lname {
-	case "binomial":
+	switch fam {
+	case BinomialFamily:
 		glm.fam = &binomial
-		glm.link = NewLink("logit")
-		glm.vari = NewVariance("binomial")
-	case "poisson":
+		glm.link = NewLink(LogitLink)
+		glm.vari = NewVariance(BinomialVar)
+	case PoissonFamily:
 		glm.fam = &poisson
-		glm.link = NewLink("log")
-		glm.vari = NewVariance("identity")
-	case "quasipoisson":
+		glm.link = NewLink(LogLink)
+		glm.vari = NewVariance(IdentityVar)
+	case QuasiPoissonFamily:
 		glm.fam = &quasiPoisson
-		glm.link = NewLink("log")
-		glm.vari = NewVariance("identity")
-	case "gaussian":
+		glm.link = NewLink(LogLink)
+		glm.vari = NewVariance(IdentityVar)
+	case GaussianFamily:
 		glm.fam = &gaussian
-		glm.link = NewLink("identity")
-		glm.vari = NewVariance("const")
-	case "gamma":
+		glm.link = NewLink(IdentityLink)
+		glm.vari = NewVariance(ConstantVar)
+	case GammaFamily:
 		glm.fam = &gamma
-		glm.link = NewLink("recip")
-		glm.vari = NewVariance("squared")
-	case "invgaussian":
+		glm.link = NewLink(RecipLink)
+		glm.vari = NewVariance(SquaredVar)
+	case InvGaussianFamily:
 		glm.fam = &invGaussian
-		glm.link = NewLink("recipsquared")
-		glm.vari = NewVariance("cubed")
-	case "negbinom":
+		glm.link = NewLink(RecipSquaredLink)
+		glm.vari = NewVariance(CubedVar)
+	case NegBinomFamily:
 		panic("GLM: can't set family to NegBinom using SetFamily")
 	default:
-		msg := fmt.Sprintf("Unknown GLM family: %s\n", name)
+		msg := fmt.Sprintf("Unknown GLM family: %v\n", fam)
 		panic(msg)
 	}
 

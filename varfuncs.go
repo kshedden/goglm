@@ -2,29 +2,36 @@ package goglm
 
 import (
 	"fmt"
-	"strings"
+)
+
+type VarianceType uint8
+
+const (
+	BinomialVar VarianceType = iota
+	IdentityVar
+	ConstantVar
+	SquaredVar
+	CubedVar
 )
 
 // NewVariance returns a new variance function object corresponding to
 // the given name.  Supported names are binomial, const, cubed,
 // identity, and, squared.
-func NewVariance(name string) *Variance {
+func NewVariance(vartype VarianceType) *Variance {
 
-	name = strings.ToLower(name)
-	switch name {
-
-	case "binomial":
+	switch vartype {
+	case BinomialVar:
 		return &binomVariance
-	case "identity":
+	case IdentityVar:
 		return &identVariance
-	case "const":
+	case ConstantVar:
 		return &constVariance
-	case "squared":
+	case SquaredVar:
 		return &squaredVariance
-	case "cubed":
+	case CubedVar:
 		return &cubedVariance
 	default:
-		msg := fmt.Sprintf("Unknown variance function: %s\n", name)
+		msg := fmt.Sprintf("Unknown variance function: %d\n", vartype)
 		panic(msg)
 	}
 }

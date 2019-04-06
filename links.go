@@ -3,7 +3,6 @@ package goglm
 import (
 	"fmt"
 	"math"
-	"strings"
 )
 
 // VecFunc is a function with two float64 array arguments.
@@ -11,6 +10,8 @@ type VecFunc func([]float64, []float64)
 
 type Link struct {
 	Name string
+
+	TypeCode LinkType
 
 	// Link calculates the link function (usually mapping the mean
 	// value to the linear predictor).
@@ -27,78 +28,93 @@ type Link struct {
 	Deriv2 VecFunc
 }
 
+type LinkType uint8
+
+const (
+	LogLink LinkType = iota
+	IdentityLink
+	LogitLink
+	CloglogLink
+	RecipLink
+	RecipSquaredLink
+)
+
 // NewLink returns a link function object corresponding to the given
 // name.  Supported values are log, identity, cloglog, logit, recip,
 // and recipsquared.
-func NewLink(name string) *Link {
+func NewLink(link LinkType) *Link {
 
-	name = strings.ToLower(name)
-
-	switch name {
-	case "log":
+	switch link {
+	case LogLink:
 		return &logLink
-	case "identity":
+	case IdentityLink:
 		return &idLink
-	case "cloglog":
+	case CloglogLink:
 		return &cLogLogLink
-	case "logit":
+	case LogitLink:
 		return &logitLink
-	case "recip":
+	case RecipLink:
 		return &recipLink
-	case "recipsquared":
+	case RecipSquaredLink:
 		return &recipSquaredLink
 	default:
-		msg := fmt.Sprintf("Link name unknown: %s\n", name)
+		msg := fmt.Sprintf("Link unknown: %v\n", link)
 		panic(msg)
 	}
 }
 
 var logLink = Link{
-	Name:    "Log",
-	Link:    logFunc,
-	InvLink: expFunc,
-	Deriv:   logDerivFunc,
-	Deriv2:  logDeriv2Func,
+	Name:     "Log",
+	TypeCode: LogLink,
+	Link:     logFunc,
+	InvLink:  expFunc,
+	Deriv:    logDerivFunc,
+	Deriv2:   logDeriv2Func,
 }
 
 var idLink = Link{
-	Name:    "Identity",
-	Link:    idFunc,
-	InvLink: idFunc,
-	Deriv:   idDerivFunc,
-	Deriv2:  idDeriv2Func,
+	Name:     "Identity",
+	TypeCode: IdentityLink,
+	Link:     idFunc,
+	InvLink:  idFunc,
+	Deriv:    idDerivFunc,
+	Deriv2:   idDeriv2Func,
 }
 
 var cLogLogLink = Link{
-	Name:    "CLogLog",
-	Link:    cloglogFunc,
-	InvLink: cloglogInvFunc,
-	Deriv:   cloglogDerivFunc,
-	Deriv2:  cloglogDeriv2Func,
+	Name:     "CLogLog",
+	TypeCode: CloglogLink,
+	Link:     cloglogFunc,
+	InvLink:  cloglogInvFunc,
+	Deriv:    cloglogDerivFunc,
+	Deriv2:   cloglogDeriv2Func,
 }
 
 var logitLink = Link{
-	Name:    "Logit",
-	Link:    logitFunc,
-	InvLink: expitFunc,
-	Deriv:   logitDerivFunc,
-	Deriv2:  logitDeriv2Func,
+	Name:     "Logit",
+	TypeCode: LogitLink,
+	Link:     logitFunc,
+	InvLink:  expitFunc,
+	Deriv:    logitDerivFunc,
+	Deriv2:   logitDeriv2Func,
 }
 
 var recipLink = Link{
-	Name:    "Recip",
-	Link:    genPowFunc(-1, 1),
-	InvLink: genPowFunc(-1, 1),
-	Deriv:   genPowFunc(-2, -1),
-	Deriv2:  genPowFunc(-3, 2),
+	Name:     "Recip",
+	TypeCode: RecipLink,
+	Link:     genPowFunc(-1, 1),
+	InvLink:  genPowFunc(-1, 1),
+	Deriv:    genPowFunc(-2, -1),
+	Deriv2:   genPowFunc(-3, 2),
 }
 
 var recipSquaredLink = Link{
-	Name:    "RecipSquared",
-	Link:    genPowFunc(-2, 1),
-	InvLink: genPowFunc(-0.5, 1),
-	Deriv:   genPowFunc(-3, -2),
-	Deriv2:  genPowFunc(-4, 6),
+	Name:     "RecipSquared",
+	TypeCode: RecipSquaredLink,
+	Link:     genPowFunc(-2, 1),
+	InvLink:  genPowFunc(-0.5, 1),
+	Deriv:    genPowFunc(-3, -2),
+	Deriv2:   genPowFunc(-4, 6),
 }
 
 func logFunc(x []float64, y []float64) {

@@ -80,8 +80,8 @@ males and 2 for females.
 	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
 
-	fam := goglm.NewFamily("gaussian")
-	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).ReportProgress().Done()
+	fam := goglm.NewFamily(goglm.GaussianFamily)
+	glm := goglm.NewGLM(f3, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
 
 	fmt.Printf(msg + "\n")
@@ -105,7 +105,7 @@ race/multiracial) as the reference category.
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
-	fam := goglm.NewFamily("gaussian")
+	fam := goglm.NewFamily(goglm.GaussianFamily)
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
 
@@ -131,7 +131,7 @@ and age as covariates.  Ethnicity is a categorical covariate with level
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
-	fam := goglm.NewFamily("gaussian")
+	fam := goglm.NewFamily(goglm.GaussianFamily)
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 	rslt := glm.Fit()
 
@@ -162,7 +162,7 @@ zero penalty for the intercept.
 		l1wgt = append(l1wgt, wt)
 	}
 
-	fam := goglm.NewFamily("gaussian")
+	fam := goglm.NewFamily(goglm.GaussianFamily)
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).L1Weight(l1wgt).CovariateScale(statmodel.L2Norm).Done()
 
 	rslt := glm.Fit()
@@ -199,7 +199,7 @@ using a square root transform in the formula.
 	f2 := dstream.MemCopy(f1)
 	f2 = dstream.DropNA(f2)
 
-	fam := goglm.NewFamily("gaussian")
+	fam := goglm.NewFamily(goglm.GaussianFamily)
 	glm := goglm.NewGLM(f2, "BPXSY1").Family(fam).Done()
 
 	rslt := glm.Fit()
@@ -240,7 +240,7 @@ the dependent variable, and gender and age as predictors.
 	f2 := dstream.MemCopy(f1)
 	f3 := dstream.DropNA(f2)
 
-	fam := goglm.NewFamily("binomial")
+	fam := goglm.NewFamily(goglm.BinomialFamily)
 	glm := goglm.NewGLM(f3, "BP").Family(fam).CovariateScale(statmodel.L2Norm).Done()
 	rslt := glm.Fit()
 
@@ -276,7 +276,7 @@ variables.
 	l1wgt := []float64{0, 1, 0}
 	l2wgt := []float64{0.01, 0.01, 0.01}
 
-	fam := goglm.NewFamily("binomial")
+	fam := goglm.NewFamily(goglm.BinomialFamily)
 	glm := goglm.NewGLM(f3, "BP").Family(fam).L1Weight(l1wgt).L2Weight(l2wgt).CovariateScale(statmodel.L2Norm).Done()
 	rslt := glm.Fit()
 	smry := rslt.Summary()
