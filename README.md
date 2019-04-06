@@ -1,5 +1,5 @@
 
-__This repository is no longer being actively developed.  See github.com/kshedden/statmodel/glm for the new version of this package.__
+__This repository is no longer being actively developed.  See (https://github.com/kshedden/statmodel/tree/master/glm) for the new version of this package.__
 
 __goglm__ supports estimation of generalized linear models in Go.
 
