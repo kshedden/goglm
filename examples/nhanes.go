@@ -33,7 +33,7 @@ import (
 	"github.com/kshedden/dstream/dstream"
 	"github.com/kshedden/dstream/formula"
 	"github.com/kshedden/goglm"
-	"github.com/kshedden/statmodel"
+	"github.com/kshedden/statmodel/statmodel"
 )
 
 func getData() dstream.Dstream {
