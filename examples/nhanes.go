@@ -55,10 +55,7 @@ func getData() dstream.Dstream {
 	}
 
 	dst := dstream.FromCSV(gid).TypeConf(tc).ChunkSize(100).HasHeader().Done()
-	dsc := dstream.MemCopy(dst)
-
-	dsc.Reset()
-	dsc.Next()
+	dsc := dstream.MemCopy(dst, false)
 
 	return dsc
 }
@@ -77,7 +74,7 @@ males and 2 for females.
 	fml := "1 + RIAGENDR + RIDAGEYR"
 
 	f1 := formula.New(fml, dp).Keep("BPXSY1").Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f3 := dstream.DropNA(f2)
 
 	fam := goglm.NewFamily(goglm.GaussianFamily)
@@ -102,7 +99,7 @@ race/multiracial) as the reference category.
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	f1 := formula.New(fml, dp).RefLevels(reflev).Keep("BPXSY1").Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily(goglm.GaussianFamily)
@@ -128,7 +125,7 @@ and age as covariates.  Ethnicity is a categorical covariate with level
 	reflev := map[string]string{"RIDRETH1": "5.0"}
 
 	f1 := formula.New(fml, dp).RefLevels(reflev).Keep("BPXSY1").Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily(goglm.GaussianFamily)
@@ -154,7 +151,7 @@ zero penalty for the intercept.
 
 	f1 := formula.New(fml, dp).Keep("BPXSY1").RefLevels(reflev).Done()
 	f1 = dstream.DropNA(f1)
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 
 	wt := 0.01
 	l1wgt := []float64{0}
@@ -196,7 +193,7 @@ using a square root transform in the formula.
 	}
 
 	f1 := formula.New(fml, dp).Keep("BPXSY1").RefLevels(reflev).Funcs(funcs).Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f2 = dstream.DropNA(f2)
 
 	fam := goglm.NewFamily(goglm.GaussianFamily)
@@ -230,14 +227,13 @@ the dependent variable, and gender and age as predictors.
 
 	dp := getData()
 
-	dp.Reset()
 	dp = dstream.Generate(dp, "BP", hbp, dstream.Float64)
-	dp = dstream.MemCopy(dp)
+	dp = dstream.MemCopy(dp, false)
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
 
 	f1 := formula.New(fml, dp).Keep("BP").Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f3 := dstream.DropNA(f2)
 
 	fam := goglm.NewFamily(goglm.BinomialFamily)
@@ -263,14 +259,13 @@ variables.
 
 	dp := getData()
 
-	dp.Reset()
 	dp = dstream.Generate(dp, "BP", hbp, dstream.Float64)
-	dp = dstream.MemCopy(dp)
+	dp = dstream.MemCopy(dp, false)
 
 	fml := "1 + RIAGENDR + RIDAGEYR"
 
 	f1 := formula.New(fml, dp).Keep("BP").Done()
-	f2 := dstream.MemCopy(f1)
+	f2 := dstream.MemCopy(f1, false)
 	f3 := dstream.DropNA(f2)
 
 	l1wgt := []float64{0, 1, 0}
